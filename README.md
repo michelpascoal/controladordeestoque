@@ -47,14 +47,25 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 📌 Status do Projeto
 
-🚧 *Em desenvolvimento* — primeira fase de modelagem e documentação.
+🚧 *Em desenvolvimento* — estrutura do projeto e camada DAO finalizadas. Aguardando integração com interface gráfica e banco de dados.
 
 ---
 
-## 🔄 Próximas Etapas
+## 🔄 Etapas do Desenvolvimento
 
 - [x] Criar diagrama de classes
-- [ ] Iniciar estrutura do projeto no NetBeans
-- [ ] Implementar CRUD de produtos
-- [ ] Integrar banco de dados
-- [ ] Criar interface gráfica
+- [x] Iniciar estrutura do projeto no NetBeans
+- [x] Implementar classes do `model` (Produto, Categoria, Movimento)
+- [x] Implementar camada `DAO` com testes via `main()`
+- [x] Subir projeto para o GitHub com `.gitignore`
+- [ ] Implementar camada `view` (GUI - Juan)
+- [ ] Implementar controladores (Dudu)
+- [ ] Criar integração com banco de dados (Diego)
+- [ ] Realizar testes e documentação final (Caio)
+
+---
+
+## 🔁 Como clonar o projeto
+
+```bash
+git clone https://github.com/michelpascoal/controladordeestoque.git
