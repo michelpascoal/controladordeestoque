@@ -1,0 +1,6 @@
+# Ignorar pastas de build e arquivos temporários
+/target/
+/build/
+/nbproject/private/
+
+/*.class
