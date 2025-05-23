@@ -7,7 +7,7 @@ import com.controladordeestoque.model.Produto;
 import java.util.Date;
 import java.util.List;
 
-public class ControladorEstoque {
+public class Principal {
 
     public static void main(String[] args) {
         // Criando categoria
