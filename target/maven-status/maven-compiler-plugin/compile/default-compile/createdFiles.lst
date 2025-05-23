@@ -1,0 +1,8 @@
+com\controladordeestoque\ControladorEstoque.class
+com\controladordeestoque\model\Categoria.class
+com\controladordeestoque\dao\ProdutoDAO.class
+com\controladordeestoque\model\MovimentoEstoque.class
+com\controladordeestoque\model\Produto.class
+com\controladordeestoque\controller\ProdutoController.class
+com\controladordeestoque\dao\CategoriaDAO.class
+com\controladordeestoque\dao\MovimentoEstoqueDAO.class
