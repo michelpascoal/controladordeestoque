@@ -38,8 +38,10 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 🗂️ Estrutura da Documentação
 
-- [`documentacao/DiagramaCasoDeUso.drawio`](./documentacao/DiagramaCasoDeUso.drawio) — Diagrama editável
-- [`documentacao/DiagramaCasoDeUso.png`](./documentacao/DiagramaCasoDeUso.png) — Diagrama de caso de uso (imagem)
+- [`documentacao/Diagrama Caso de Uso.drawio`](./documentacao/Diagrama%20Caso%20de%20Uso.drawio) — Diagrama de caso de uso (editável)
+- [`documentacao/Diagrama Caso de Uso.png`](./documentacao/Diagrama%20Caso%20de%20Uso.png) — Diagrama de caso de uso (imagem)
+- [`documentacao/DiagramaClasses.drawio`](./documentacao/DiagramaClasses.drawio) — Diagrama de classes (editável)
+- [`documentacao/DiagramaClasses.png`](./documentacao/DiagramaClasses.png) — Diagrama de classes (imagem)
 
 ---
 
@@ -51,10 +53,8 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 🔄 Próximas Etapas
 
-- [ ] Criar diagrama de classes
+- [x] Criar diagrama de classes
 - [ ] Iniciar estrutura do projeto no NetBeans
 - [ ] Implementar CRUD de produtos
 - [ ] Integrar banco de dados
 - [ ] Criar interface gráfica
-
----
