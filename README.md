@@ -17,22 +17,25 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 🛠️ Tecnologias Utilizadas
 
-- Java
-- NetBeans IDE
-- Padrão de projeto MVC
+- Java 17
+- Apache NetBeans IDE 26
+- Maven 3.9.6
+- Git + GitHub
+- draw.io (para diagramas UML)
+- Padrão de Projeto MVC
 - (Banco de dados a definir — ex: SQLite ou MySQL)
 
 ---
 
 ## 👥 Equipe de Desenvolvimento
 
-| Nome   | Função |
-|--------|--------|
-| **Michel** | Modelagem / DAO |
-| **Juan**   | Interface Gráfica |
-| **Dudu**   | Controller / Regras de Negócio |
-| **Diego**  | Banco de Dados / Conexões |
-| **Caio**   | Testes / Relatórios / Documentação |
+| Nome Completo         | RA           | Usuário GitHub        | Função                              |
+|-----------------------|--------------|-----------------------|-------------------------------------|
+| Michel Pascoal        | 10724258193  | michelpascoal         | Modelagem / DAO                     |
+| Juan Natan            | 10724268997  | JuanNatan             | Interface Gráfica                   |
+| Eduardo Oliveira      | 10725115448  | duduprogrammer1       | Controller / Regras de Negócio      |
+| Diego Oliveira        | 10725115447  | odiegoor              | Banco de Dados / Conexões           |
+| Caio Roberth          | 10725114033  | caioooooo77           | Testes / Relatórios / Documentação  |
 
 ---
 
@@ -59,7 +62,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 - [x] Implementar camada `DAO` com testes via `main()`
 - [x] Subir projeto para o GitHub com `.gitignore`
 - [ ] Implementar camada `view` (GUI - Juan)
-- [ ] Implementar controladores (Dudu)
+- [ ] Implementar controladores (Eduardo)
 - [ ] Criar integração com banco de dados (Diego)
 - [ ] Realizar testes e documentação final (Caio)
 
