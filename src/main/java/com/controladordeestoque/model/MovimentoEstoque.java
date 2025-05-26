@@ -10,9 +10,16 @@ public class MovimentoEstoque {
     private String tipo; // "ENTRADA" ou "SAÍDA"
     private Date data;
 
+    // Construtor padrão com valores iniciais
     public MovimentoEstoque() {
+        this.id = 0;
+        this.produto = new Produto();  // Produto vazio
+        this.quantidade = 0;
+        this.tipo = "";
+        this.data = new Date();  // Data atual
     }
 
+    // Construtor completo
     public MovimentoEstoque(int id, Produto produto, int quantidade, String tipo, Date data) {
         this.id = id;
         this.produto = produto;
@@ -21,6 +28,7 @@ public class MovimentoEstoque {
         this.data = data;
     }
 
+    // Getters e Setters
     public int getId() {
         return id;
     }

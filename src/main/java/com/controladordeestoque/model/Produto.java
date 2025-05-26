@@ -11,9 +11,17 @@ public class Produto {
     private Date validade;
     private Categoria categoria;
 
+    // Construtor padrão com valores iniciais
     public Produto() {
+        this.id = 0;
+        this.nome = "";
+        this.descricao = "";
+        this.quantidade = 0;
+        this.validade = new Date(); // define como data atual
+        this.categoria = new Categoria(); // nova categoria vazia
     }
 
+    // Construtor completo
     public Produto(int id, String nome, String descricao, int quantidade, Date validade, Categoria categoria) {
         this.id = id;
         this.nome = nome;
@@ -23,6 +31,7 @@ public class Produto {
         this.categoria = categoria;
     }
 
+    // Getters e Setters
     public int getId() {
         return id;
     }
