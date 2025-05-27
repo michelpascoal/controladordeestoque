@@ -1,6 +1,18 @@
-# Ignorar pastas de build e arquivos temporários
+# Java standard GitHub .gitignore
+*.class
+*.log
+*.jar
+*.war
+*.ear
+
+# Diretórios
 /target/
 /build/
-/nbproject/private/
+/out/
 
-/*.class
+/nbproject/private/
+/nbactions.xml
+
+# IDEs
+.idea/
+/*.iml
