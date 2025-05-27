@@ -1,4 +1,4 @@
-package principal;
+package com.controladordeestoque.principal;
 
 import com.controladordeestoque.dao.CategoriaDAO;
 import com.controladordeestoque.dao.ProdutoDAO;
