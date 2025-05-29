@@ -12,6 +12,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 - ➕ Registrar entrada de estoque
 - ➖ Registrar saída de estoque
 - 📄 Gerar relatórios simples (ex: estoque baixo)
+- 🖥️ Interface gráfica com telas para cadastro, consulta, movimentação e menu principal
 
 ---
 
@@ -50,7 +51,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 📌 Status do Projeto
 
-🚧 *Em desenvolvimento* — estrutura do projeto e camada DAO finalizadas. Aguardando integração com interface gráfica e banco de dados.
+🚧 *Em desenvolvimento* — estrutura do projeto e camada DAO finalizadas. Camada `view` já implementada. Aguardando integração com banco de dados e controladores.
 
 ---
 
@@ -61,7 +62,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 - [x] Implementar classes do `model` (Produto, Categoria, Movimento)
 - [x] Implementar camada `DAO` com testes via `main()`
 - [x] Subir projeto para o GitHub com `.gitignore`
-- [ ] Implementar camada `view` (GUI - Juan)
+- [x] Implementar camada `view` (GUI - Juan)
 - [ ] Implementar controladores (Eduardo)
 - [ ] Criar integração com banco de dados (Diego)
 - [ ] Realizar testes e documentação final (Caio)
