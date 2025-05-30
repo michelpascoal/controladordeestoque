@@ -24,7 +24,7 @@ public class Principal {
         categoriaDAO.salvar(new Categoria(7, "Congelados"));
 
         // Criando produto
-        Produto produto = new Produto(1, "Refrigerante", "Lata 350ml", 50, new Date(), categoria);
+        Produto produto = new Produto(1, "Refrigerante", "Lata 350ml", 50, new Date(), categoria, 4.50, 10);
         ProdutoDAO produtoDAO = new ProdutoDAO();
         produtoDAO.salvar(produto);
 

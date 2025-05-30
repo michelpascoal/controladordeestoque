@@ -10,6 +10,8 @@ public class Produto {
     private int quantidade;
     private Date validade;
     private Categoria categoria;
+    private double precoUnitario;
+    private int quantidadeMinima;
 
     // Construtor padrão com valores iniciais
     public Produto() {
@@ -19,16 +21,19 @@ public class Produto {
         this.quantidade = 0;
         this.validade = new Date(); // define como data atual
         this.categoria = new Categoria(); // nova categoria vazia
+        this.precoUnitario = 0.0; // adiciona valor padrão ao preço
     }
 
     // Construtor completo
-    public Produto(int id, String nome, String descricao, int quantidade, Date validade, Categoria categoria) {
+    public Produto(int id, String nome, String descricao, int quantidade, Date validade, Categoria categoria, double precoUnitario, int quantidadeMinima) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
         this.quantidade = quantidade;
         this.validade = validade;
         this.categoria = categoria;
+        this.precoUnitario = precoUnitario;
+        this.quantidadeMinima = quantidadeMinima;
     }
 
     // Getters e Setters
@@ -70,6 +75,22 @@ public class Produto {
 
     public void setValidade(Date validade) {
         this.validade = validade;
+    }
+    
+    public double getPrecoUnitario() {
+        return precoUnitario;
+    }
+
+    public void setPrecoUnitario(double precoUnitario) {
+        this.precoUnitario = precoUnitario;
+    }
+    
+    public int getQuantidadeMinima() {
+        return quantidadeMinima;
+    }
+
+    public void setQuantidadeMinima(int quantidadeMinima) {
+        this.quantidadeMinima = quantidadeMinima;
     }
 
     public Categoria getCategoria() {
