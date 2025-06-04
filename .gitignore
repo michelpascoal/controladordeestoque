@@ -1,0 +1,18 @@
+# Java standard GitHub .gitignore
+*.class
+*.log
+*.jar
+*.war
+*.ear
+
+# Diretórios
+/target/
+/build/
+/out/
+
+/nbproject/private/
+/nbactions.xml
+
+# IDEs
+.idea/
+/*.iml
