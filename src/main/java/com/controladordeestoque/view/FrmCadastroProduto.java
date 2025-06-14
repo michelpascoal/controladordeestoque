@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import com.controladordeestoque.model.Produto;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 
 /**
@@ -559,14 +560,11 @@ try {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         txtValidade.setText(sdf.format(p.getValidade()));
         cbCategoria.setSelectedItem(p.getCategoria());
-
-        idProdutoEditando = id;
     } else {
         JOptionPane.showMessageDialog(this, "Produto não encontrado.");
     }
-}
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnEditarActionPerformed
+    // TODO add your handling code here:
+}//GEN-LAST:event_btnEditarActionPerformed
 
     private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
         // TODO add your handling code here:
@@ -591,9 +589,8 @@ try {
             JOptionPane.showMessageDialog(this, "Erro ao excluir produto.");
         }
     }
-}
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExcluirActionPerformed
+    // TODO add your handling code here:
+}//GEN-LAST:event_btnExcluirActionPerformed
 
     private void cbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbCategoriaActionPerformed
         // TODO add your handling code here:
@@ -608,6 +605,10 @@ private void btnLimpar() {
     txtQuantidadeMaxima.setText("");
     txtValidade.setText("");
     cbCategoria.setSelectedIndex(0);
+}
+
+private void acaoLimparCampos() {
+    btnLimpar();
 }
 
    
@@ -665,9 +666,6 @@ private void btnLimpar() {
     private javax.swing.JTextField txtValidade;
     // End of variables declaration//GEN-END:variables
 
-private ProdutoController produtoController = new ProdutoController();
-
-
 private void listarProdutos() {
     DefaultTableModel modelo = (DefaultTableModel) tblProdutos.getModel();
     modelo.setRowCount(0);
@@ -683,4 +681,6 @@ private void listarProdutos() {
             p.getCategoria().getNome()
         });
     }
+}
+
 }
