@@ -2,7 +2,7 @@ package com.controladordeestoque.view;
 
 /**
  *
- * @author juann
+ * @author juan
  */
 public class FrmMenuPrincipal extends javax.swing.JFrame {
 
