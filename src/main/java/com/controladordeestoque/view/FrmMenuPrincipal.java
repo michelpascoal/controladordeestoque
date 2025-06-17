@@ -16,103 +16,116 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnCadastroProduto = new javax.swing.JButton();
-        btnConsultaProduto = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        btnMovimentacaoEstoque = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        menuItens = new javax.swing.JMenu();
+        menuCadastros = new javax.swing.JMenu();
+        itemCadastroProduto = new javax.swing.JMenuItem();
+        menuConsultas = new javax.swing.JMenu();
+        itemConsultaProduto = new javax.swing.JMenuItem();
+        menuMovimentacao = new javax.swing.JMenu();
+        itemMovimentacaoEstoque = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        menuSistema = new javax.swing.JMenu();
+        itemSair = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        btnCadastroProduto.setText("Cadastro de Produto");
-        btnCadastroProduto.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCadastroProdutoActionPerformed(evt);
-            }
-        });
+        menuItens.setText("Itens");
 
-        btnConsultaProduto.setText("Consulta de Produto");
-        btnConsultaProduto.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnConsultaProdutoActionPerformed(evt);
-            }
-        });
+        menuCadastros.setText("Cadastros");
 
-        jButton4.setText("Sair");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        itemCadastroProduto.setText("Produto");
+        itemCadastroProduto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                itemCadastroProdutoActionPerformed(evt);
             }
         });
+        menuCadastros.add(itemCadastroProduto);
 
-        btnMovimentacaoEstoque.setText("Movimentação de Estoque");
-        btnMovimentacaoEstoque.addActionListener(new java.awt.event.ActionListener() {
+        menuItens.add(menuCadastros);
+
+        menuConsultas.setText("Consultas");
+
+        itemConsultaProduto.setText("Produto");
+        itemConsultaProduto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnMovimentacaoEstoqueActionPerformed(evt);
+                itemConsultaProdutoActionPerformed(evt);
             }
         });
+        menuConsultas.add(itemConsultaProduto);
+
+        menuItens.add(menuConsultas);
+
+        menuMovimentacao.setText("Movimentação");
+
+        itemMovimentacaoEstoque.setText("Estoque");
+        itemMovimentacaoEstoque.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemMovimentacaoEstoqueActionPerformed(evt);
+            }
+        });
+        menuMovimentacao.add(itemMovimentacaoEstoque);
+
+        menuItens.add(menuMovimentacao);
+        menuItens.add(jSeparator1);
+
+        menuSistema.setText("Sistema");
+
+        itemSair.setText("Sair");
+        itemSair.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemSairActionPerformed(evt);
+            }
+        });
+        menuSistema.add(itemSair);
+
+        menuItens.add(menuSistema);
+
+        jMenuBar1.add(menuItens);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(41, 41, 41)
-                        .addComponent(btnCadastroProduto)
-                        .addGap(5, 5, 5)
-                        .addComponent(btnConsultaProduto)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnMovimentacaoEstoque))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(235, 235, 235)
-                        .addComponent(jButton4)))
-                .addContainerGap(45, Short.MAX_VALUE))
+            .addGap(0, 546, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnCadastroProduto)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnConsultaProduto)
-                        .addComponent(btnMovimentacaoEstoque)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 243, Short.MAX_VALUE)
-                .addComponent(jButton4)
-                .addContainerGap())
+            .addGap(0, 119, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnCadastroProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastroProdutoActionPerformed
+    private void itemCadastroProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemCadastroProdutoActionPerformed
         FrmCadastroProduto telaCadastro = new FrmCadastroProduto();
         telaCadastro.setVisible(true);
-    }//GEN-LAST:event_btnCadastroProdutoActionPerformed
+    }//GEN-LAST:event_itemCadastroProdutoActionPerformed
 
-    private void btnConsultaProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultaProdutoActionPerformed
+    private void itemConsultaProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemConsultaProdutoActionPerformed
         FrmConsultaProduto telaConsulta = new FrmConsultaProduto();
         telaConsulta.setVisible(true);
-    }//GEN-LAST:event_btnConsultaProdutoActionPerformed
+    }//GEN-LAST:event_itemConsultaProdutoActionPerformed
 
-    private void btnMovimentacaoEstoqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMovimentacaoEstoqueActionPerformed
+    private void itemMovimentacaoEstoqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemMovimentacaoEstoqueActionPerformed
         FrmMovimentacaoEstoque telaMovimentacao = new FrmMovimentacaoEstoque();
         telaMovimentacao.setVisible(true);
-    }//GEN-LAST:event_btnMovimentacaoEstoqueActionPerformed
+    }//GEN-LAST:event_itemMovimentacaoEstoqueActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void itemSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemSairActionPerformed
         int resposta = javax.swing.JOptionPane.showConfirmDialog(this,
         "Deseja realmente sair do sistema?",
         "Confirmar Saída",
         javax.swing.JOptionPane.YES_NO_OPTION);
         if (resposta == javax.swing.JOptionPane.YES_OPTION) {
     System.exit(0);
-   
-    }//GEN-LAST:event_jButton4ActionPerformed
+}
+    }//GEN-LAST:event_itemSairActionPerformed
 
- 
-    } public static void main(String args[]) {
+
+ public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(() -> {
             new FrmMenuPrincipal().setVisible(true);
@@ -120,9 +133,16 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCadastroProduto;
-    private javax.swing.JButton btnConsultaProduto;
-    private javax.swing.JButton btnMovimentacaoEstoque;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JMenuItem itemCadastroProduto;
+    private javax.swing.JMenuItem itemConsultaProduto;
+    private javax.swing.JMenuItem itemMovimentacaoEstoque;
+    private javax.swing.JMenuItem itemSair;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenu menuCadastros;
+    private javax.swing.JMenu menuConsultas;
+    private javax.swing.JMenu menuItens;
+    private javax.swing.JMenu menuMovimentacao;
+    private javax.swing.JMenu menuSistema;
     // End of variables declaration//GEN-END:variables
 }

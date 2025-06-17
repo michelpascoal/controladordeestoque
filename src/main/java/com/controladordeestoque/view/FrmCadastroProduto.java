@@ -23,44 +23,37 @@ import javax.swing.table.DefaultTableModel;
  */
 
 public class FrmCadastroProduto extends javax.swing.JFrame {
-private ProdutoController produtoController = new ProdutoController();
-   
+private ProdutoController produtoController;
+
 private ProdutoDAO produtoDAO;
-    private CategoriaDAO categoriaDAO;
+private CategoriaDAO categoriaDAO;
 
  
     public FrmCadastroProduto() {
     initComponents();
     inicializarLogicaTela();
 }
-    private void inicializarLogicaTela() {
-        produtoDAO = new ProdutoDAO();
-        categoriaDAO = new CategoriaDAO();
-        carregarCategoriasNaTela();
-        configurarAcoesBotoes();
-        this.setLocationRelativeTo(null);
+   private void inicializarLogicaTela() {
+    produtoDAO = new ProdutoDAO();
+    categoriaDAO = new CategoriaDAO();
+    produtoController = new ProdutoController(); 
+
+    carregarCategoriasNaTela();
+    
+    this.setLocationRelativeTo(null);
+    listarProdutos(); 
 }
     private void carregarCategoriasNaTela() {
-        List<Categoria> listaDeCategorias = categoriaDAO.listarTodas();
-        cbCategoria.removeAllItems(); 
-        cbCategoria.addItem("Categoria"); 
-        if (listaDeCategorias != null) {
-            for (Categoria cat : listaDeCategorias) {
-                cbCategoria.addItem(cat.getNome());
+    List<Categoria> listaDeCategorias = categoriaDAO.listarTodas();
+    cbCategoria.removeAllItems(); 
+    cbCategoria.addItem("Selecione uma Categoria");
+    if (listaDeCategorias != null) {
+        for (Categoria cat : listaDeCategorias) {
+            cbCategoria.addItem(cat.getNome());
         }
     }
 }
-    private void configurarAcoesBotoes() {
-        btnSalvar.addActionListener((ActionEvent e) -> {
-        acaoSalvarProduto();
-    });
-        btnVoltar.addActionListener((ActionEvent e) -> {
-        acaoVoltarJanela();
-    });
-        btnLimpar.addActionListener((ActionEvent e) -> {
-        acaoLimparCampos();
-    });
-}
+    
 
 private void acaoVoltarJanela() {
     this.dispose();
@@ -151,35 +144,27 @@ LocalDate hoje = LocalDate.now();
         return;
     }
 
-    // 6. Lógica para Salvar (novo) ou Atualizar (existente)
-    Produto produtoJaExiste = produtoDAO.buscarPorId(idProduto);
+    // 6. Lógica para Salvar (novo) ou Atualizar (existente) - DELEGA AO CONTROLLER
+    Produto produtoParaOperacao = new Produto(idProduto, nomeProduto, descricaoProduto, quantidadeProduto, dataValidade, categoriaDoProduto, precoUnitario, quantidadeMinima, quantidadeMaxima);
+
     boolean foiSalvoComSucesso;
 
-    if (produtoJaExiste != null) {
-        // ATUALIZA um produto que já existe
-        produtoJaExiste.setNome(nomeProduto);
-        produtoJaExiste.setDescricao(descricaoProduto);
-        produtoJaExiste.setQuantidade(quantidadeProduto);
-        produtoJaExiste.setValidade(dataValidade);
-        produtoJaExiste.setPrecoUnitario(precoUnitario);
-        produtoJaExiste.setCategoria(categoriaDoProduto);
-        produtoJaExiste.setQuantidadeMinima(quantidadeMinima);
-        produtoJaExiste.setQuantidadeMaxima(quantidadeMaxima);
-        foiSalvoComSucesso = produtoDAO.atualizar(produtoJaExiste);
+    
+    if (produtoDAO.buscarPorId(idProduto) != null) { // Verifica se já existe pelo ID no banco
+        foiSalvoComSucesso = produtoController.atualizarProduto(produtoParaOperacao); // CHAMA O CONTROLLER
     } else {
-        // SALVA um produto novo
-        Produto produtoParaSalvar = new Produto(idProduto, nomeProduto, descricaoProduto, quantidadeProduto, dataValidade, categoriaDoProduto, precoUnitario, quantidadeMinima, quantidadeMaxima);
-        foiSalvoComSucesso = produtoDAO.salvar(produtoParaSalvar);
+        foiSalvoComSucesso = produtoController.cadastrarProduto(produtoParaOperacao); // CHAMA O CONTROLLER
     }
 
-    // 7. Mensagem final para o usuário
+    // 7. Mensagem final para o usuário e atualização da tela
     if (foiSalvoComSucesso) {
         JOptionPane.showMessageDialog(this, "Produto salvo/atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-        acaoLimparCampos();
+        acaoLimparCampos(); // Limpa os campos após a operação
+        listarProdutos(); // ATUALIZA A TABELA DE PRODUTOS
     } else {
         JOptionPane.showMessageDialog(this, "Ocorreu um erro ao salvar/atualizar o produto.", "Erro", JOptionPane.ERROR_MESSAGE);
     }
-}
+} // Fim do acaoSalvarProduto
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -249,6 +234,11 @@ LocalDate hoje = LocalDate.now();
         });
 
         btnVoltar.setText("Voltar");
+        btnVoltar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVoltarActionPerformed(evt);
+            }
+        });
 
         txtDescrição.setMinimumSize(new java.awt.Dimension(66, 22));
 
@@ -466,45 +456,12 @@ LocalDate hoje = LocalDate.now();
     }//GEN-LAST:event_txtQuantidadeMinimaActionPerformed
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-try {
-    Produto produto = new Produto();
-    produto.setId(Integer.parseInt(txtCodigo.getText())); // ou gere o ID automaticamente
-    produto.setNome(txtNome.getText());
-    produto.setDescricao(txtDescrição.getText());
-    produto.setPreco(Double.parseDouble(txtPrecoUnitario.getText()));
-    produto.setQuantidade(Integer.parseInt(txtQuantidade.getText()));
-    produto.setQuantidadeMinima(Integer.parseInt(txtQuantidadeMinima.getText()));
-    produto.setQuantidadeMaxima(Integer.parseInt(txtQuantidadeMaxima.getText()));
-
-
-    // Pegando a data de validade
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    Date validade = sdf.parse(txtValidade.getText());
-    produto.setValidade(validade);
-
-    // Pegando a categoria selecionada
-    Categoria categoria = (Categoria) cbCategoria.getSelectedItem();
-    produto.setCategoria(categoria);
-
-   if (produtoController.cadastrarProduto(produto)) {
-
-
-        JOptionPane.showMessageDialog(this, "Produto cadastrado com sucesso!");
-        btnLimpar();
-        listarProdutos();
-
-    } else {
-        JOptionPane.showMessageDialog(this, "Erro ao cadastrar produto.");
-    }
-} catch (Exception e) {
-    JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
-}
-        // TODO add your handling code here:
+        acaoSalvarProduto();
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     private void btnLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimparActionPerformed
 
-        // TODO add your handling code here:
+        acaoLimparCampos();
     }//GEN-LAST:event_btnLimparActionPerformed
 
     private void txtQuantidadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeActionPerformed
@@ -513,57 +470,51 @@ try {
     }//GEN-LAST:event_txtQuantidadeActionPerformed
 
     private void txtPrecoUnitarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPrecoUnitarioActionPerformed
-try {
-    double preco = Double.parseDouble(txtPrecoUnitario.getText());
-    ProdutoController.setPrecoUnitario(preco);
-} catch (NumberFormatException ex) {
-    JOptionPane.showMessageDialog(this, "Preço inválido. Digite um número.");
-    return;
-}
-        // TODO add your handling code here:
+        // A lógica de preço agora é tratada em acaoSalvarProduto(). Este método pode ficar vazio.
     }//GEN-LAST:event_txtPrecoUnitarioActionPerformed
 
     private void txtQuantidadeMaximaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeMaximaActionPerformed
-try {
-    int qtd = Integer.parseInt(txtQuantidade.getText());
-    ProdutoController.setQuantidadeMaxima(qtd);
-} catch (NumberFormatException ex) {
-    JOptionPane.showMessageDialog(this, "Quantidade inválida. Digite um número inteiro.");
-    return;
-}
-        // TODO add your handling code here:
+        // A lógica de quantidade máxima agora é tratada em acaoSalvarProduto(). Este método pode ficar vazio.
     }//GEN-LAST:event_txtQuantidadeMaximaActionPerformed
+    private void acaoEditarProduto() {
+        int linhaSelecionada = tblProdutos.getSelectedRow();
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para editar.", "Nenhum Produto Selecionado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    private void tblProdutosAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tblProdutosAncestorAdded
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tblProdutosAncestorAdded
+        int idProduto = (int) tblProdutos.getValueAt(linhaSelecionada, 0);
+        Produto produtoParaEditar = produtoDAO.buscarPorId(idProduto); // Busca no banco
 
+        if (produtoParaEditar != null) {
+            txtCodigo.setText(String.valueOf(produtoParaEditar.getId()));
+            txtNome.setText(produtoParaEditar.getNome());
+            txtDescrição.setText(produtoParaEditar.getDescricao());
+            txtQuantidade.setText(String.valueOf(produtoParaEditar.getQuantidade()));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            if (produtoParaEditar.getValidade() != null) {
+                txtValidade.setText(sdf.format(produtoParaEditar.getValidade()));
+            } else {
+                txtValidade.setText("");
+            }
+
+            txtPrecoUnitario.setText(String.format("%.2f", produtoParaEditar.getPrecoUnitario()));
+            txtQuantidadeMinima.setText(String.valueOf(produtoParaEditar.getQuantidadeMinima()));
+            txtQuantidadeMaxima.setText(String.valueOf(produtoParaEditar.getQuantidadeMaxima()));
+
+           
+            if (produtoParaEditar.getCategoria() != null) {
+                cbCategoria.setSelectedItem(produtoParaEditar.getCategoria().getNome()); 
+            } else {
+                cbCategoria.setSelectedIndex(0); // Seleciona "Selecione uma Categoria"
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Produto não encontrado no banco de dados.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-
-    int linhaSelecionada = tblProdutos.getSelectedRow();
-    if (linhaSelecionada == -1) {
-        JOptionPane.showMessageDialog(this, "Selecione um produto para editar.");
-        return;
-    }
-
-    int id = (int) tblProdutos.getValueAt(linhaSelecionada, 0);
-    Produto p = produtoController.buscarProdutoPorId(id);
-
-    if (p != null) {
-        txtCodigo.setText(String.valueOf(p.getId()));
-        txtNome.setText(p.getNome());
-        txtDescrição.setText(p.getDescricao());
-        txtPrecoUnitario.setText(String.valueOf(p.getPrecoUnitario()));
-        txtQuantidade.setText(String.valueOf(p.getQuantidade()));
-        txtQuantidadeMinima.setText(String.valueOf(p.getQuantidadeMinima()));
-        txtQuantidadeMaxima.setText(String.valueOf(p.getQuantidadeMaxima()));
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        txtValidade.setText(sdf.format(p.getValidade()));
-        cbCategoria.setSelectedItem(p.getCategoria());
-    } else {
-        JOptionPane.showMessageDialog(this, "Produto não encontrado.");
-    }
-    // TODO add your handling code here:
+    acaoEditarProduto(); // CHAMA O NOVO MÉTODO acaoEditarProduto()
 }//GEN-LAST:event_btnEditarActionPerformed
 
     private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
@@ -571,30 +522,43 @@ try {
     }//GEN-LAST:event_txtCodigoActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
-
+        acaoExcluirProduto();
+}//GEN-LAST:event_btnExcluirActionPerformed
+private void acaoExcluirProduto() {
     int linhaSelecionada = tblProdutos.getSelectedRow();
     if (linhaSelecionada == -1) {
-        JOptionPane.showMessageDialog(this, "Selecione um produto para excluir.");
+        JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para excluir.", "Nenhum Produto Selecionado", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir?", "Confirmação", JOptionPane.YES_NO_OPTION);
-    if (confirm == JOptionPane.YES_OPTION) {
-        int id = (int) tblProdutos.getValueAt(linhaSelecionada, 0); // coluna 0 = ID
-        boolean removido = produtoController.removerProduto(id);
-        if (removido) {
-            JOptionPane.showMessageDialog(this, "Produto excluído com sucesso.");
-            listarProdutos();
+    int idProduto = (int) tblProdutos.getValueAt(linhaSelecionada, 0); 
+
+    int confirmacao = JOptionPane.showConfirmDialog(this, 
+                                                    "Tem certeza que deseja excluir o produto ID: " + idProduto + "?", 
+                                                    "Confirmar Exclusão", 
+                                                    JOptionPane.YES_NO_OPTION);
+
+    if (confirmacao == JOptionPane.YES_OPTION) {
+        if (produtoDAO.remover(idProduto)) { // Delega a remoção ao ProdutoDAO
+            JOptionPane.showMessageDialog(this, "Produto excluído com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            listarProdutos(); // Atualiza a tabela
+            acaoLimparCampos(); // Limpa os campos da tela
         } else {
-            JOptionPane.showMessageDialog(this, "Erro ao excluir produto.");
+            JOptionPane.showMessageDialog(this, "Erro ao excluir o produto. Verifique se existem movimentos de estoque associados a ele.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
-    // TODO add your handling code here:
-}//GEN-LAST:event_btnExcluirActionPerformed
-
+}
     private void cbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbCategoriaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbCategoriaActionPerformed
+
+    private void tblProdutosAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tblProdutosAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblProdutosAncestorAdded
+
+    private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btnVoltarActionPerformed
 private void btnLimpar() {
     txtCodigo.setText("");
     txtNome.setText("");
@@ -668,17 +632,22 @@ private void acaoLimparCampos() {
 
 private void listarProdutos() {
     DefaultTableModel modelo = (DefaultTableModel) tblProdutos.getModel();
-    modelo.setRowCount(0);
+    modelo.setRowCount(0); // Limpa as linhas existentes na tabela
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-    for (Produto p : produtoController.listarProdutos()) {
+    List<Produto> produtos = produtoController.listarProdutos(); // Chama o Controller para obter produtos do banco
+
+    for (Produto p : produtos) {
+        String dataValidadeStr = (p.getValidade() != null) ? sdf.format(p.getValidade()) : "";
+        String nomeCategoria = (p.getCategoria() != null) ? p.getCategoria().getNome() : "";
+
         modelo.addRow(new Object[]{
             p.getId(),
             p.getNome(),
             p.getPrecoUnitario(),
             p.getQuantidade(),
-            sdf.format(p.getValidade()),
-            p.getCategoria().getNome()
+            dataValidadeStr,
+            nomeCategoria
         });
     }
 }

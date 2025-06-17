@@ -1,4 +1,5 @@
 package com.controladordeestoque.view;
+import com.controladordeestoque.controller.MovimentacaoEstoqueController;
 import com.controladordeestoque.dao.MovimentoEstoqueDAO;
 import com.controladordeestoque.dao.ProdutoDAO;         
 import com.controladordeestoque.model.MovimentoEstoque; 
@@ -15,7 +16,7 @@ import java.awt.event.ActionEvent;
 public class FrmMovimentacaoEstoque extends javax.swing.JFrame {
     private MovimentoEstoqueDAO movimentoEstoqueDAO;
     private ProdutoDAO produtoDAO;
-
+    private MovimentacaoEstoqueController movimentacaoEstoqueController;
     
     public FrmMovimentacaoEstoque() {
         initComponents();
@@ -24,6 +25,7 @@ public class FrmMovimentacaoEstoque extends javax.swing.JFrame {
 private void inicializarLogicaMovimentacao() {
     movimentoEstoqueDAO = new MovimentoEstoqueDAO();
     produtoDAO = new ProdutoDAO();
+    movimentacaoEstoqueController = new MovimentacaoEstoqueController();
     
     configurarAcoesBotoesMovimentacao();
     
@@ -50,7 +52,7 @@ private void acaoConfirmarMovimentacao() {
     String textoQuantidade = txtQuantidadeMov.getText().trim();
     String tipoMovimento = (String) cmbTipoMovimento.getSelectedItem();
 
-    // Validações básicas de entrada
+    // Validações básicas de entrada (mantidas na View)
     if (textoCodigoProduto.isEmpty()) {
         JOptionPane.showMessageDialog(this, "O Código do Produto é obrigatório.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
         txtCodigoMov.requestFocus();
@@ -61,7 +63,7 @@ private void acaoConfirmarMovimentacao() {
         txtQuantidadeMov.requestFocus();
         return;
     }
-    if (tipoMovimento == null) { // Adicionado para evitar NullPointerException se nada for selecionado
+    if (tipoMovimento == null || tipoMovimento.isEmpty() || "Selecione o Tipo de Movimento".equals(tipoMovimento)) { // Adicionado verificação para item padrão
         JOptionPane.showMessageDialog(this, "Selecione o Tipo de Movimento.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
         cmbTipoMovimento.requestFocus();
         return;
@@ -90,76 +92,24 @@ private void acaoConfirmarMovimentacao() {
         return;
     }
 
-    Produto produtoAlvo = produtoDAO.buscarPorId(idProduto);
-    if (produtoAlvo == null) {
-        JOptionPane.showMessageDialog(this, "Produto com o código " + idProduto + " não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
-        txtCodigoMov.requestFocus();
-        return;
+    boolean sucesso = false;
+    if ("Entrada".equals(tipoMovimento)) {
+        sucesso = movimentacaoEstoqueController.registrarEntrada(idProduto, quantidadeMovimentada); // DELEGA AO CONTROLLER
+    } else if ("Saida".equals(tipoMovimento)) {
+        sucesso = movimentacaoEstoqueController.registrarSaida(idProduto, quantidadeMovimentada); // DELEGA AO CONTROLLER
     }
 
-    int quantidadeAntiga = produtoAlvo.getQuantidade();
-    int novaQuantidade = quantidadeAntiga;
-
-    if ("Entrada".equals(tipoMovimento)) {
-        novaQuantidade = quantidadeAntiga + quantidadeMovimentada;
-        if (produtoAlvo.getQuantidadeMaxima() > 0 && novaQuantidade > produtoAlvo.getQuantidadeMaxima()) {
-            int resposta = JOptionPane.showConfirmDialog(
-                this, 
-                "Atenção: Esta entrada fará o estoque exceder a quantidade máxima definida (" + produtoAlvo.getQuantidadeMaxima() + ").\n" +
-                "Estoque resultante: " + novaQuantidade + ".\n\nDeseja continuar mesmo assim?",
-                "Estoque Excedendo o Máximo", 
-                JOptionPane.YES_NO_OPTION, 
-                JOptionPane.WARNING_MESSAGE
-            );
-
-            if (resposta == JOptionPane.NO_OPTION) {
-                return; // Usuário cancelou
-            }
-        } 
-    } else if ("Saida".equals(tipoMovimento)) {  
-        if (quantidadeAntiga < quantidadeMovimentada) {
-            JOptionPane.showMessageDialog(this, "Estoque insuficiente para a saída de " + quantidadeMovimentada + " unidades do produto " + produtoAlvo.getNome() + ".\nEstoque atual: " + quantidadeAntiga, "Estoque Insuficiente", JOptionPane.ERROR_MESSAGE);
-            txtQuantidadeMov.requestFocus();
-            return;
-        }
-        novaQuantidade = quantidadeAntiga - quantidadeMovimentada;
-        if (novaQuantidade < produtoAlvo.getQuantidadeMinima()) {
-            int resposta = JOptionPane.showConfirmDialog(
-                this, 
-                "Atenção: Esta saída fará o estoque do produto '" + produtoAlvo.getNome() + "' ficar abaixo do mínimo (" + produtoAlvo.getQuantidadeMinima() + ").\n" +
-                "Estoque resultante: " + novaQuantidade + ".\n\nDeseja continuar com a operação?",
-                "Estoque Abaixo do Mínimo", 
-                JOptionPane.YES_NO_OPTION, 
-                JOptionPane.WARNING_MESSAGE
-            );
-            
-            if (resposta == JOptionPane.NO_OPTION) {
-                return; 
-            }
-        }
-    } 
-    
-    produtoAlvo.setQuantidade(novaQuantidade);
-    boolean produtoAtualizado = produtoDAO.atualizar(produtoAlvo);
-
-    if (produtoAtualizado) {
-        int idMovimento = movimentoEstoqueDAO.listarTodos().size() + 1; 
-        MovimentoEstoque novoMovimento = new MovimentoEstoque(idMovimento, produtoAlvo, quantidadeMovimentada, tipoMovimento.toUpperCase(), new Date());
-        boolean movimentoRegistrado = movimentoEstoqueDAO.registrarMovimento(novoMovimento);
-
-        if (movimentoRegistrado) {
-            JOptionPane.showMessageDialog(this, "Movimentação de '" + tipoMovimento + "' de " + quantidadeMovimentada + " unidade(s) para o produto '" + produtoAlvo.getNome() + "' registrada com sucesso!\nNovo estoque: " + novaQuantidade, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            txtCodigoMov.setText("");
-            txtQuantidadeMov.setText("");
-            cmbTipoMovimento.setSelectedIndex(0);  
-            txtCodigoMov.requestFocus();
-        } else {
-            produtoAlvo.setQuantidade(quantidadeAntiga);  
-            produtoDAO.atualizar(produtoAlvo);
-            JOptionPane.showMessageDialog(this, "Produto atualizado, mas houve um erro ao registrar o histórico da movimentação. A alteração no estoque foi desfeita.", "Erro no Registro", JOptionPane.ERROR_MESSAGE);
-        }
+    if (sucesso) {
+        JOptionPane.showMessageDialog(this, "Movimentação de '" + tipoMovimento + "' registrada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        txtCodigoMov.setText("");
+        txtQuantidadeMov.setText("");
+        cmbTipoMovimento.setSelectedIndex(0); // Reseta o ComboBox para o primeiro item
+        txtCodigoMov.requestFocus();
     } else {
-        JOptionPane.showMessageDialog(this, "Erro ao atualizar a quantidade do produto no estoque.", "Erro na Atualização", JOptionPane.ERROR_MESSAGE);
+        // As mensagens de erro específicas (produto não encontrado, estoque insuficiente, etc.)
+        // já são tratadas DENTRO do MovimentacaoEstoqueController.
+        // Aqui, apenas uma mensagem genérica de falha se o controller retornar false.
+        JOptionPane.showMessageDialog(this, "Falha ao registrar a movimentação.", "Erro na Operação", JOptionPane.ERROR_MESSAGE);
     }
 }
    

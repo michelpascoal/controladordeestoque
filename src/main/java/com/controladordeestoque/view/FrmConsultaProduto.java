@@ -81,6 +81,7 @@ public class FrmConsultaProduto extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblProdutos.setMaximumSize(new java.awt.Dimension(500, 80));
         tblProdutos.setOpaque(false);
         tblProdutos.setPreferredSize(new java.awt.Dimension(486, 267));
         tblProdutos.setShowGrid(false);
@@ -161,7 +162,6 @@ public class FrmConsultaProduto extends javax.swing.JFrame {
     System.out.println("FrmConsultaProduto: Iniciando inicializarLogicaConsulta()...");
     produtoDAO = new ProdutoDAO();
 
-    // 1. Define o modelo de dados com os tipos de coluna corretos para ordenação
     String[] nomeColunas = {"Codigo", "Nome", "Descrição", "Quantidade", "Validade", "Categoria"};
     this.tableModel = new DefaultTableModel(nomeColunas, 0) {
         @Override
@@ -172,70 +172,63 @@ public class FrmConsultaProduto extends javax.swing.JFrame {
         @Override
         public Class<?> getColumnClass(int columnIndex) {
             return switch (columnIndex) {
-                case 0 -> Integer.class; // Codigo
-                case 3 -> Integer.class; // Quantidade
-                case 4 -> Date.class; // Validade
+                case 0 -> Integer.class;
+                case 3 -> Integer.class;
+                case 4 -> Date.class;
                 default -> String.class;
-            }; 
-            
-            
+            };
         }
     };
 
-    // 2. Cria uma nova tabela customizada com a lógica para pintar as linhas
-    JTable tabelaCustomizada;
-        tabelaCustomizada = new JTable() {
-            @Override
-            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
-                Component component = super.prepareRenderer(renderer, row, column);
+    tblProdutos = new JTable() {
+        @Override
+        public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+            Component component = super.prepareRenderer(renderer, row, column);
+
+            if (getModel().getRowCount() == 0) {
+                return component;
+            }
+
+            int modelRow = convertRowIndexToModel(row);
+            Object value = getModel().getValueAt(modelRow, 4); 
+
+            if (value instanceof Date validade) {
                 
-                if (getModel().getRowCount() == 0) {
-                    return component;
-                }
+                // LINHA CORRIGIDA AQUI
+                LocalDate dataValidade = new java.sql.Date(validade.getTime()).toLocalDate();
                 
-                int modelRow = convertRowIndexToModel(row);
-                Object value = getModel().getValueAt(modelRow, 4); // Coluna 4 = Validade
-                
-                if (value instanceof Date validade) {
-                    LocalDate dataValidade = validade.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                    LocalDate hoje = LocalDate.now();
-                    long diasParaVencer = ChronoUnit.DAYS.between(hoje, dataValidade);
-                    
-                    if (!isRowSelected(row)) {
-                        // Produtos já vencidos ou vencendo em até 2 dias
-                        if (diasParaVencer <= 2) {
-                            component.setBackground(new Color(255, 180, 180)); // Vermelho claro
-                            component.setForeground(Color.BLACK);
-                            // Produtos vencendo em até 7 dias
-                        } else if (diasParaVencer <= 7) {
-                            component.setBackground(new Color(255, 220, 160)); // Laranja claro
-                            component.setForeground(Color.BLACK);
-                        } else {
-                            // Cor padrão para os demais
-                            component.setBackground(super.getBackground());
-                            component.setForeground(super.getForeground());
-                        }
+                LocalDate hoje = LocalDate.now();
+                long diasParaVencer = ChronoUnit.DAYS.between(hoje, dataValidade);
+
+                if (!isRowSelected(row)) {
+                    if (diasParaVencer <= 2) {
+                        component.setBackground(new Color(255, 180, 180));
+                        component.setForeground(Color.BLACK);
+                    } else if (diasParaVencer <= 7) {
+                        component.setBackground(new Color(255, 220, 160));
+                        component.setForeground(Color.BLACK);
                     } else {
-                        // Mantém as cores de seleção do sistema
-                        component.setBackground(super.getSelectionBackground());
-                        component.setForeground(super.getSelectionForeground());
-                    }
-                } else { // Caso não tenha data
-                    if (!isRowSelected(row)) {
                         component.setBackground(super.getBackground());
                         component.setForeground(super.getForeground());
                     }
+                } else {
+                    component.setBackground(super.getSelectionBackground());
+                    component.setForeground(super.getSelectionForeground());
                 }
-                return component;
+            } else {
+                if (!isRowSelected(row)) {
+                    component.setBackground(super.getBackground());
+                    component.setForeground(super.getForeground());
+                }
             }
-        };
+            return component;
+        }
+    };
 
-    // 3. Configura a nova tabela
-    tabelaCustomizada.setModel(this.tableModel);
-    tabelaCustomizada.setAutoCreateRowSorter(true); // Habilita a ordenação
+    tblProdutos.setModel(this.tableModel);
+    tblProdutos.setAutoCreateRowSorter(true);
 
-    // Configura o renderizador para exibir a data no formato dd/MM/yyyy
-    tabelaCustomizada.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+    tblProdutos.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
         private final SimpleDateFormat formatador = new SimpleDateFormat("dd/MM/yyyy");
 
         @Override
@@ -248,11 +241,8 @@ public class FrmConsultaProduto extends javax.swing.JFrame {
         }
     });
 
-    // 4. Substitui a tabela do NetBeans pela tabela customizada (a tabela original não pode ser pintada, pelo menos não descobri como)
-    jScrollPane1.setViewportView(tabelaCustomizada);
-    this.tblProdutos = tabelaCustomizada; // A variável de instância agora aponta para a nova tabela
+    jScrollPane1.setViewportView(tblProdutos);
 
-  
     carregarTodosProdutosNaTabela();
     configurarAcaoBotoesConsulta();
     configurarAcoesRelatorios();
@@ -374,7 +364,7 @@ private void carregarTodosProdutosNaTabela() {
 
    
     private void gerarRelatorioAbaixoMinimo() {
-        List<String> relatorio = produtoDAO.gerarRelatorioAbaixoMinimo(); //
+        List<String> relatorio = produtoDAO.gerarRelatorioAbaixoMinimo(); 
         if (relatorio.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nenhum produto abaixo do estoque mínimo.", "Relatório", JOptionPane.INFORMATION_MESSAGE);
             return;
