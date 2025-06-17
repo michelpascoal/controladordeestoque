@@ -1,26 +1,31 @@
 package com.controladordeestoque.view;
 
+import com.controladordeestoque.controller.ProdutoController;
 import com.controladordeestoque.dao.CategoriaDAO;
 import com.controladordeestoque.dao.ProdutoDAO;
 import com.controladordeestoque.model.Categoria;
-import com.controladordeestoque.model.Produto;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import javax.swing.JOptionPane;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import com.controladordeestoque.model.Produto;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 
 /**
  *
  * @author juann
  */
+
 public class FrmCadastroProduto extends javax.swing.JFrame {
-    private ProdutoDAO produtoDAO;
+private ProdutoController produtoController = new ProdutoController();
+   
+private ProdutoDAO produtoDAO;
     private CategoriaDAO categoriaDAO;
 
  
@@ -47,28 +52,24 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
 }
     private void configurarAcoesBotoes() {
         btnSalvar.addActionListener((ActionEvent e) -> {
-            acaoSalvarProduto();
-        });
+        acaoSalvarProduto();
+    });
         btnVoltar.addActionListener((ActionEvent e) -> {
-            acaoVoltarJanela();
-        });
+        acaoVoltarJanela();
+    });
         btnLimpar.addActionListener((ActionEvent e) -> {
-            acaoLimparCampos();
-        });
-}
-    private void acaoLimparCampos() {
-    txtCodigo.setText("");
-    txtNome.setText(""); 
-    txtQuantidade.setText("");
-    txtDescrição.setText(""); 
-    txtQuantidade.setText("");
-    txtValidade.setText("");
-    cbCategoria.setSelectedIndex(0); 
-    txtCodigo.requestFocus();
+        acaoLimparCampos();
+    });
 }
 
 private void acaoVoltarJanela() {
     this.dispose();
+}
+
+
+public Produto buscarProdutoPorId(int id) {
+    return produtoDAO.buscarPorId(id);
+
 }
 
 private void acaoSalvarProduto() {
@@ -179,7 +180,7 @@ LocalDate hoje = LocalDate.now();
         JOptionPane.showMessageDialog(this, "Ocorreu um erro ao salvar/atualizar o produto.", "Erro", JOptionPane.ERROR_MESSAGE);
     }
 }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -192,7 +193,6 @@ LocalDate hoje = LocalDate.now();
         btnVoltar = new javax.swing.JButton();
         txtDescrição = new javax.swing.JTextField();
         txtValidade = new javax.swing.JTextField();
-        cbCategoria = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -204,6 +204,11 @@ LocalDate hoje = LocalDate.now();
         txtQuantidadeMinima = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         txtQuantidadeMaxima = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblProdutos = new javax.swing.JTable();
+        btnEditar = new javax.swing.JButton();
+        btnExcluir = new javax.swing.JButton();
+        cbCategoria = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Categoria");
@@ -216,27 +221,38 @@ LocalDate hoje = LocalDate.now();
         });
 
         txtCodigo.setMinimumSize(new java.awt.Dimension(66, 22));
+        txtCodigo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCodigoActionPerformed(evt);
+            }
+        });
 
         txtQuantidade.setMinimumSize(new java.awt.Dimension(66, 22));
+        txtQuantidade.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtQuantidadeActionPerformed(evt);
+            }
+        });
 
         btnSalvar.setText("Salvar");
+        btnSalvar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSalvarActionPerformed(evt);
+            }
+        });
 
         btnLimpar.setText("Limpar");
+        btnLimpar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLimparActionPerformed(evt);
+            }
+        });
 
         btnVoltar.setText("Voltar");
 
         txtDescrição.setMinimumSize(new java.awt.Dimension(66, 22));
 
         txtValidade.setMinimumSize(new java.awt.Dimension(66, 22));
-
-        cbCategoria.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Categoria", " " }));
-        cbCategoria.setToolTipText("");
-        cbCategoria.setName("Categoria"); // NOI18N
-        cbCategoria.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbCategoriaActionPerformed(evt);
-            }
-        });
 
         jLabel1.setText("Nome");
 
@@ -250,6 +266,12 @@ LocalDate hoje = LocalDate.now();
 
         jLabel6.setText("Preço Unitário");
 
+        txtPrecoUnitario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtPrecoUnitarioActionPerformed(evt);
+            }
+        });
+
         jLabel7.setText("Quantidade Mínima");
 
         txtQuantidadeMinima.addActionListener(new java.awt.event.ActionListener() {
@@ -260,6 +282,64 @@ LocalDate hoje = LocalDate.now();
 
         jLabel8.setText("Quantidade Maxima");
 
+        txtQuantidadeMaxima.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtQuantidadeMaximaActionPerformed(evt);
+            }
+        });
+
+        tblProdutos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Codigo", "Nome", "Preço Unitario", "Quantidade", "Validade", "Categoria"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Double.class, java.lang.Integer.class, java.lang.Object.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        tblProdutos.setToolTipText("");
+        tblProdutos.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                tblProdutosAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        jScrollPane1.setViewportView(tblProdutos);
+
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+
+        btnExcluir.setText("Excluir");
+        btnExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExcluirActionPerformed(evt);
+            }
+        });
+
+        cbCategoria.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Categoria" }));
+        cbCategoria.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbCategoriaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -267,9 +347,6 @@ LocalDate hoje = LocalDate.now();
             .addGroup(layout.createSequentialGroup()
                 .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(cbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
@@ -288,7 +365,7 @@ LocalDate hoje = LocalDate.now();
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtDescrição, javax.swing.GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE)))
+                                        .addComponent(txtDescrição, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
                                         .addGap(9, 9, 9)
@@ -298,6 +375,10 @@ LocalDate hoje = LocalDate.now();
                                         .addComponent(txtValidade, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btnExcluir)
+                                .addGap(28, 28, 28)
+                                .addComponent(btnEditar)
+                                .addGap(26, 26, 26)
                                 .addComponent(btnSalvar)
                                 .addGap(26, 26, 26)
                                 .addComponent(btnLimpar)
@@ -306,9 +387,11 @@ LocalDate hoje = LocalDate.now();
                                 .addGap(8, 8, 8)))
                         .addGap(64, 64, 64))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtQuantidade, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txtQuantidade, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(cbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -322,7 +405,9 @@ LocalDate hoje = LocalDate.now();
                                     .addComponent(jLabel8)
                                     .addComponent(txtQuantidadeMinima, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtQuantidadeMaxima, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addContainerGap(91, Short.MAX_VALUE))))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -340,26 +425,31 @@ LocalDate hoje = LocalDate.now();
                     .addComponent(txtDescrição, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtValidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(38, 38, 38)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel7))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtQuantidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtPrecoUnitario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtQuantidadeMinima, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtQuantidadeMaxima, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtQuantidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtPrecoUnitario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtQuantidadeMinima, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtQuantidadeMaxima, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 78, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSalvar)
                     .addComponent(btnLimpar)
-                    .addComponent(btnVoltar))
+                    .addComponent(btnVoltar)
+                    .addComponent(btnEditar)
+                    .addComponent(btnExcluir))
                 .addGap(36, 36, 36))
         );
 
@@ -370,13 +460,156 @@ LocalDate hoje = LocalDate.now();
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNomeActionPerformed
 
+    private void txtQuantidadeMinimaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeMinimaActionPerformed
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtQuantidadeMinimaActionPerformed
+
+    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
+try {
+    Produto produto = new Produto();
+    produto.setId(Integer.parseInt(txtCodigo.getText())); // ou gere o ID automaticamente
+    produto.setNome(txtNome.getText());
+    produto.setDescricao(txtDescrição.getText());
+    produto.setPreco(Double.parseDouble(txtPrecoUnitario.getText()));
+    produto.setQuantidade(Integer.parseInt(txtQuantidade.getText()));
+    produto.setQuantidadeMinima(Integer.parseInt(txtQuantidadeMinima.getText()));
+    produto.setQuantidadeMaxima(Integer.parseInt(txtQuantidadeMaxima.getText()));
+
+
+    // Pegando a data de validade
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    Date validade = sdf.parse(txtValidade.getText());
+    produto.setValidade(validade);
+
+    // Pegando a categoria selecionada
+    Categoria categoria = (Categoria) cbCategoria.getSelectedItem();
+    produto.setCategoria(categoria);
+
+   if (produtoController.cadastrarProduto(produto)) {
+
+
+        JOptionPane.showMessageDialog(this, "Produto cadastrado com sucesso!");
+        btnLimpar();
+        listarProdutos();
+
+    } else {
+        JOptionPane.showMessageDialog(this, "Erro ao cadastrar produto.");
+    }
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+}
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSalvarActionPerformed
+
+    private void btnLimparActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimparActionPerformed
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnLimparActionPerformed
+
+    private void txtQuantidadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeActionPerformed
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtQuantidadeActionPerformed
+
+    private void txtPrecoUnitarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPrecoUnitarioActionPerformed
+try {
+    double preco = Double.parseDouble(txtPrecoUnitario.getText());
+    ProdutoController.setPrecoUnitario(preco);
+} catch (NumberFormatException ex) {
+    JOptionPane.showMessageDialog(this, "Preço inválido. Digite um número.");
+    return;
+}
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtPrecoUnitarioActionPerformed
+
+    private void txtQuantidadeMaximaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeMaximaActionPerformed
+try {
+    int qtd = Integer.parseInt(txtQuantidade.getText());
+    ProdutoController.setQuantidadeMaxima(qtd);
+} catch (NumberFormatException ex) {
+    JOptionPane.showMessageDialog(this, "Quantidade inválida. Digite um número inteiro.");
+    return;
+}
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtQuantidadeMaximaActionPerformed
+
+    private void tblProdutosAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tblProdutosAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblProdutosAncestorAdded
+
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+
+    int linhaSelecionada = tblProdutos.getSelectedRow();
+    if (linhaSelecionada == -1) {
+        JOptionPane.showMessageDialog(this, "Selecione um produto para editar.");
+        return;
+    }
+
+    int id = (int) tblProdutos.getValueAt(linhaSelecionada, 0);
+    Produto p = produtoController.buscarProdutoPorId(id);
+
+    if (p != null) {
+        txtCodigo.setText(String.valueOf(p.getId()));
+        txtNome.setText(p.getNome());
+        txtDescrição.setText(p.getDescricao());
+        txtPrecoUnitario.setText(String.valueOf(p.getPrecoUnitario()));
+        txtQuantidade.setText(String.valueOf(p.getQuantidade()));
+        txtQuantidadeMinima.setText(String.valueOf(p.getQuantidadeMinima()));
+        txtQuantidadeMaxima.setText(String.valueOf(p.getQuantidadeMaxima()));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        txtValidade.setText(sdf.format(p.getValidade()));
+        cbCategoria.setSelectedItem(p.getCategoria());
+    } else {
+        JOptionPane.showMessageDialog(this, "Produto não encontrado.");
+    }
+    // TODO add your handling code here:
+}//GEN-LAST:event_btnEditarActionPerformed
+
+    private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCodigoActionPerformed
+
+    private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
+
+    int linhaSelecionada = tblProdutos.getSelectedRow();
+    if (linhaSelecionada == -1) {
+        JOptionPane.showMessageDialog(this, "Selecione um produto para excluir.");
+        return;
+    }
+
+    int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir?", "Confirmação", JOptionPane.YES_NO_OPTION);
+    if (confirm == JOptionPane.YES_OPTION) {
+        int id = (int) tblProdutos.getValueAt(linhaSelecionada, 0); // coluna 0 = ID
+        boolean removido = produtoController.removerProduto(id);
+        if (removido) {
+            JOptionPane.showMessageDialog(this, "Produto excluído com sucesso.");
+            listarProdutos();
+        } else {
+            JOptionPane.showMessageDialog(this, "Erro ao excluir produto.");
+        }
+    }
+    // TODO add your handling code here:
+}//GEN-LAST:event_btnExcluirActionPerformed
+
     private void cbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbCategoriaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbCategoriaActionPerformed
+private void btnLimpar() {
+    txtCodigo.setText("");
+    txtNome.setText("");
+    txtDescrição.setText("");
+    txtPrecoUnitario.setText("");
+    txtQuantidade.setText("");
+    txtQuantidadeMinima.setText("");
+    txtQuantidadeMaxima.setText("");
+    txtValidade.setText("");
+    cbCategoria.setSelectedIndex(0);
+}
 
-    private void txtQuantidadeMinimaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeMinimaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtQuantidadeMinimaActionPerformed
+private void acaoLimparCampos() {
+    btnLimpar();
+}
 
    
     public static void main(String args[]) {
@@ -407,6 +640,8 @@ LocalDate hoje = LocalDate.now();
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEditar;
+    private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnLimpar;
     private javax.swing.JButton btnSalvar;
     private javax.swing.JButton btnVoltar;
@@ -419,6 +654,8 @@ LocalDate hoje = LocalDate.now();
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblProdutos;
     private javax.swing.JTextField txtCodigo;
     private javax.swing.JTextField txtDescrição;
     private javax.swing.JTextField txtNome;
@@ -428,4 +665,22 @@ LocalDate hoje = LocalDate.now();
     private javax.swing.JTextField txtQuantidadeMinima;
     private javax.swing.JTextField txtValidade;
     // End of variables declaration//GEN-END:variables
+
+private void listarProdutos() {
+    DefaultTableModel modelo = (DefaultTableModel) tblProdutos.getModel();
+    modelo.setRowCount(0);
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+    for (Produto p : produtoController.listarProdutos()) {
+        modelo.addRow(new Object[]{
+            p.getId(),
+            p.getNome(),
+            p.getPrecoUnitario(),
+            p.getQuantidade(),
+            sdf.format(p.getValidade()),
+            p.getCategoria().getNome()
+        });
+    }
+}
+
 }
