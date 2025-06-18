@@ -3,10 +3,15 @@ import com.controladordeestoque.controller.MovimentacaoEstoqueController;
 import com.controladordeestoque.dao.MovimentoEstoqueDAO;
 import com.controladordeestoque.dao.ProdutoDAO;         
 import com.controladordeestoque.model.MovimentoEstoque; 
-import com.controladordeestoque.model.Produto;          
-import java.util.Date;                                  
-import javax.swing.JOptionPane;                         
-import java.awt.event.ActionEvent;                      
+                                  import javax.swing.JOptionPane;                         
+import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JFileChooser;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
                    
 
 /**
@@ -45,6 +50,79 @@ private void configurarAcoesBotoesMovimentacao() {
 
 private void acaoVoltarMenu() {
     this.dispose();  
+}
+
+ 
+private void acaoGerarRelatorio() {
+    List<MovimentoEstoque> relatorio = movimentacaoEstoqueController.listarTodasMovimentacoes(); // Usa o controller
+    if (relatorio.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Nenhuma movimentação de estoque registrada para gerar o relatório.", "Relatório Vazio", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    StringBuilder relatorioCompleto = new StringBuilder("=== RELATÓRIO DE MOVIMENTAÇÃO DE ESTOQUE ===\n\n");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+    for (MovimentoEstoque mov : relatorio) {
+        String linha = String.format("ID: %d | Produto: %s | Qtd: %d | Tipo: %s | Data: %s\n",
+                mov.getId(),
+                mov.getProduto().getNome(),
+                mov.getQuantidade(),
+                mov.getTipo(),
+                sdf.format(mov.getData()));
+        relatorioCompleto.append(linha);
+    }
+
+    // Prepara a área de texto para ser exibida na janela
+    javax.swing.JTextArea textArea = new javax.swing.JTextArea(relatorioCompleto.toString());
+    javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    textArea.setEditable(false);
+    scrollPane.setPreferredSize(new java.awt.Dimension(550, 350));
+
+    // Define os botões customizados para a janela de diálogo
+    Object[] options = {"Salvar Relatório", "Fechar"};
+
+    int escolha = JOptionPane.showOptionDialog(
+        this,
+        scrollPane,
+        "Relatório de Movimentações",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.INFORMATION_MESSAGE,
+        null,
+        options,
+        options[1]
+    );
+
+    
+    if (escolha == JOptionPane.YES_OPTION) { // YES_OPTION corresponde ao primeiro botão (índice 0)
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Salvar Relatório Como...");
+        fileChooser.setSelectedFile(new File("relatorio_movimentacao.txt")); // Sugestão de nome de arquivo
+
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File arquivoParaSalvar = fileChooser.getSelectedFile();
+            try (FileWriter fw = new FileWriter(arquivoParaSalvar);
+                 BufferedWriter bw = new BufferedWriter(fw)) {
+
+                bw.write(relatorioCompleto.toString());
+
+                JOptionPane.showMessageDialog(this, 
+                    "Relatório salvo com sucesso em:\n" + arquivoParaSalvar.getAbsolutePath(), 
+                    "Sucesso", 
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, 
+                    "Ocorreu um erro ao salvar o arquivo:\n" + e.getMessage(), 
+                    "Erro de Gravação", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 }
 
 private void acaoConfirmarMovimentacao() {
@@ -111,6 +189,7 @@ private void acaoConfirmarMovimentacao() {
         // Aqui, apenas uma mensagem genérica de falha se o controller retornar false.
         JOptionPane.showMessageDialog(this, "Falha ao registrar a movimentação.", "Erro na Operação", JOptionPane.ERROR_MESSAGE);
     }
+    
 }
    
     @SuppressWarnings("unchecked")
@@ -124,6 +203,7 @@ private void acaoConfirmarMovimentacao() {
         btnConfirmarMovimentacao = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        btnGerarRelatorio = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -136,6 +216,13 @@ private void acaoConfirmarMovimentacao() {
         jLabel1.setText("Código do produto");
 
         jLabel2.setText("Quantidade");
+
+        btnGerarRelatorio.setText("Gerar Relatório");
+        btnGerarRelatorio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGerarRelatorioActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -159,6 +246,10 @@ private void acaoConfirmarMovimentacao() {
                 .addGap(47, 47, 47)
                 .addComponent(btnVoltarMenu)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnGerarRelatorio)
+                .addGap(143, 143, 143))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -176,11 +267,17 @@ private void acaoConfirmarMovimentacao() {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnConfirmarMovimentacao)
                     .addComponent(btnVoltarMenu))
-                .addGap(99, 99, 99))
+                .addGap(18, 18, 18)
+                .addComponent(btnGerarRelatorio)
+                .addGap(58, 58, 58))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnGerarRelatorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGerarRelatorioActionPerformed
+        acaoGerarRelatorio();
+    }//GEN-LAST:event_btnGerarRelatorioActionPerformed
     
 
     
@@ -206,6 +303,7 @@ private void acaoConfirmarMovimentacao() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfirmarMovimentacao;
+    private javax.swing.JButton btnGerarRelatorio;
     private javax.swing.JButton btnVoltarMenu;
     private javax.swing.JComboBox<String> cmbTipoMovimento;
     private javax.swing.JLabel jLabel1;

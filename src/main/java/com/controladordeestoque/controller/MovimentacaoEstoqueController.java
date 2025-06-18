@@ -5,6 +5,7 @@ import com.controladordeestoque.dao.ProdutoDAO;
 import com.controladordeestoque.model.MovimentoEstoque; 
 import com.controladordeestoque.model.Produto;          
 import java.util.Date;                                  
+import java.util.List;
 import javax.swing.JOptionPane;                         
 
 public class MovimentacaoEstoqueController {
@@ -108,5 +109,9 @@ public class MovimentacaoEstoqueController {
             return movimentoEstoqueDAO.registrarMovimento(movimento); // Delega o registro ao MovimentoEstoqueDAO
         }
         return false;
+        
+    }
+    public List<MovimentoEstoque> listarTodasMovimentacoes() {
+        return this.movimentoEstoqueDAO.listarTodos(); // Delega a chamada para o DAO
     }
 }
