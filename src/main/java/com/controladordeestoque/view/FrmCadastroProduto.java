@@ -18,155 +18,187 @@ import javax.swing.table.DefaultTableModel;
 
 
 /**
- *
- * @author juann
+ * Representa a tela (JFrame) para cadastro, consulta e edição de produtos.
+ * Esta classe compõe a camada de Visualização (View) da aplicação, sendo
+ * responsável por toda a interação do usuário com os dados de produtos.
  */
-
 public class FrmCadastroProduto extends javax.swing.JFrame {
-private ProdutoController produtoController;
+    private ProdutoController produtoController;
 
-private ProdutoDAO produtoDAO;
-private CategoriaDAO categoriaDAO;
+    private ProdutoDAO produtoDAO;
+    private CategoriaDAO categoriaDAO;
 
- 
+    /**
+     * Construtor da tela de cadastro de produtos.
+     * Inicia os componentes visuais e a lógica da tela.
+     */
     public FrmCadastroProduto() {
-    initComponents();
-    inicializarLogicaTela();
-}
-   private void inicializarLogicaTela() {
-    produtoDAO = new ProdutoDAO();
-    categoriaDAO = new CategoriaDAO();
-    produtoController = new ProdutoController(); 
-
-    carregarCategoriasNaTela();
+        initComponents();
+        inicializarLogicaTela();
+    }
     
-    this.setLocationRelativeTo(null);
-    listarProdutos(); 
-}
+    /**
+     * Inicializa a lógica de negócio da tela.
+     * Instancia os DAOs e Controllers, carrega dados iniciais (como categorias)
+     * e popula a tabela de produtos.
+     */
+    private void inicializarLogicaTela() {
+        produtoDAO = new ProdutoDAO();
+        categoriaDAO = new CategoriaDAO();
+        produtoController = new ProdutoController();
+
+        carregarCategoriasNaTela();
+    
+        this.setLocationRelativeTo(null);
+        listarProdutos();
+    }
+    
+    /**
+     * Carrega as categorias do banco de dados e as exibe no ComboBox (cbCategoria).
+     */
     private void carregarCategoriasNaTela() {
-    List<Categoria> listaDeCategorias = categoriaDAO.listarTodas();
-    cbCategoria.removeAllItems(); 
-    cbCategoria.addItem("Selecione uma Categoria");
-    if (listaDeCategorias != null) {
-        for (Categoria cat : listaDeCategorias) {
-            cbCategoria.addItem(cat.getNome());
+        List<Categoria> listaDeCategorias = categoriaDAO.listarTodas();
+        cbCategoria.removeAllItems();
+        cbCategoria.addItem("Selecione uma Categoria");
+        if (listaDeCategorias != null) {
+            for (Categoria cat : listaDeCategorias) {
+                cbCategoria.addItem(cat.getNome());
+            }
         }
     }
-}
-    
-
-private void acaoVoltarJanela() {
-    this.dispose();
-}
 
 
-public Produto buscarProdutoPorId(int id) {
-    return produtoDAO.buscarPorId(id);
-
-}
-
-private void acaoSalvarProduto() {
-    // 1. Leitura de todos os campos da tela
-    String textoCodigo = txtCodigo.getText().trim();
-    String nomeProduto = txtNome.getText().trim();
-    String descricaoProduto = txtDescrição.getText().trim();
-    String textoQuantidade = txtQuantidade.getText().trim();
-    String textoValidade = txtValidade.getText().trim();
-    String textoPreco = txtPrecoUnitario.getText().trim().replace(",", ".");
-    String textoQuantidadeMinima = txtQuantidadeMinima.getText().trim();
-    String textoQuantidadeMaxima = txtQuantidadeMaxima.getText().trim();
-
-    // 2. Validações de campos obrigatórios
-    if (textoCodigo.isEmpty() || nomeProduto.isEmpty() || textoQuantidade.isEmpty() || textoPreco.isEmpty() || cbCategoria.getSelectedIndex() <= 0) {
-        JOptionPane.showMessageDialog(this, "Os campos de Código, Nome, Quantidade, Preço e Categoria são obrigatórios.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
-        return;
+    /**
+     * Fecha a janela atual, liberando seus recursos.
+     */
+    private void acaoVoltarJanela() {
+        this.dispose();
     }
 
-    // 3. Declaração das variáveis que serão preenchidas
-    int idProduto, quantidadeProduto, quantidadeMinima, quantidadeMaxima;
-    double precoUnitario;
-    Date dataValidade = null;
 
-    // 4. Conversão e Validação dos tipos de dados (tudo dentro de um único try-catch)
-    try {
-        idProduto = Integer.parseInt(textoCodigo);
-        quantidadeProduto = Integer.parseInt(textoQuantidade);
-        precoUnitario = Double.parseDouble(textoPreco);
-        
-        // Converte valores que podem ser vazios (mínimo e máximo), tratando como 0 se vazios
-        quantidadeMinima = textoQuantidadeMinima.isEmpty() ? 0 : Integer.parseInt(textoQuantidadeMinima);
-        quantidadeMaxima = textoQuantidadeMaxima.isEmpty() ? 0 : Integer.parseInt(textoQuantidadeMaxima);
-
-        // Converte a data, somente se o campo não estiver vazio
-        if (!textoValidade.isEmpty()) {
-            SimpleDateFormat formatadorData = new SimpleDateFormat("dd/MM/yyyy");
-            formatadorData.setLenient(false);
-            dataValidade = formatadorData.parse(textoValidade);
-            LocalDate dataValidadeProduto = dataValidade.toInstant()
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate();
-LocalDate hoje = LocalDate.now();
-
-// Verifica se a data do produto é anterior à data de hoje
-    if (dataValidadeProduto.isBefore(hoje)) {
-        JOptionPane.showMessageDialog(this, 
-            "Não é possível cadastrar um produto com data de validade vencida.", 
-            "Produto Vencido", 
-            JOptionPane.ERROR_MESSAGE);
-        txtValidade.requestFocus(); // Devolve o foco ao campo de validade
-        return; // Interrompe a execução, impedindo o salvamento
+    /**
+     * Busca um produto por seu ID, delegando a chamada diretamente ao ProdutoDAO.
+     * @param id O ID do produto a ser buscado.
+     * @return O objeto {@link Produto} encontrado, ou null se não existir.
+     */
+    public Produto buscarProdutoPorId(int id) {
+        return produtoDAO.buscarPorId(id);
     }
+
+    /**
+     * Orquestra o processo de salvar ou atualizar um produto com base nos dados da tela.
+     * <p>
+     * O método executa os seguintes passos:
+     * <ol>
+     * <li>Lê os dados de todos os campos de texto.</li>
+     * <li>Realiza uma validação inicial para campos obrigatórios.</li>
+     * <li>Converte os textos para os tipos de dados apropriados (int, double, Date), tratando erros de formato.</li>
+     * <li>Valida regras de negócio, como data de validade vencida e estoque abaixo do mínimo.</li>
+     * <li>Identifica o objeto Categoria selecionado no ComboBox.</li>
+     * <li>Verifica se um produto com o ID informado já existe no banco para decidir entre cadastrar (novo) ou atualizar (existente).</li>
+     * <li>Delega a operação final para o {@link ProdutoController}.</li>
+     * <li>Exibe uma mensagem de sucesso ou erro ao usuário e atualiza a interface.</li>
+     * </ol>
+     */
+    private void acaoSalvarProduto() {
+        // 1. Leitura de todos os campos da tela
+        String textoCodigo = txtCodigo.getText().trim();
+        String nomeProduto = txtNome.getText().trim();
+        String descricaoProduto = txtDescrição.getText().trim();
+        String textoQuantidade = txtQuantidade.getText().trim();
+        String textoValidade = txtValidade.getText().trim();
+        String textoPreco = txtPrecoUnitario.getText().trim().replace(",", ".");
+        String textoQuantidadeMinima = txtQuantidadeMinima.getText().trim();
+        String textoQuantidadeMaxima = txtQuantidadeMaxima.getText().trim();
+
+        // 2. Validações de campos obrigatórios
+        if (textoCodigo.isEmpty() || nomeProduto.isEmpty() || textoQuantidade.isEmpty() || textoPreco.isEmpty() || cbCategoria.getSelectedIndex() <= 0) {
+            JOptionPane.showMessageDialog(this, "Os campos de Código, Nome, Quantidade, Preço e Categoria são obrigatórios.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    } catch (HeadlessException | NumberFormatException | ParseException e) {
-        JOptionPane.showMessageDialog(this, "Erro de formato em um dos campos numéricos ou de data.\nUse números para campos de quantidade e dd/mm/aaaa para data.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    if (quantidadeMinima > 0 && quantidadeProduto < quantidadeMinima) { // Verifica se uma qtde. mínima foi definida
-        JOptionPane.showMessageDialog(this, 
-            "A Quantidade em estoque (" + quantidadeProduto + ") não pode ser menor que a Quantidade Mínima definida (" + quantidadeMinima + ").", 
-            "Erro de Validação de Estoque", 
-            JOptionPane.ERROR_MESSAGE);
-        txtQuantidade.requestFocus(); // Coloca o foco no campo de quantidade
-        return; // Impede o salvamento
-    }
 
-    // 5. Busca da Categoria selecionada
-    String nomeCategoriaSelecionada = (String) cbCategoria.getSelectedItem();
-    Categoria categoriaDoProduto = null;
-    for (Categoria cat : categoriaDAO.listarTodas()) {
-        if (cat.getNome().equals(nomeCategoriaSelecionada)) {
-            categoriaDoProduto = cat;
-            break;
+        // 3. Declaração das variáveis que serão preenchidas
+        int idProduto, quantidadeProduto, quantidadeMinima, quantidadeMaxima;
+        double precoUnitario;
+        Date dataValidade = null;
+
+        // 4. Conversão e Validação dos tipos de dados (tudo dentro de um único try-catch)
+        try {
+            idProduto = Integer.parseInt(textoCodigo);
+            quantidadeProduto = Integer.parseInt(textoQuantidade);
+            precoUnitario = Double.parseDouble(textoPreco);
+            
+            // Converte valores que podem ser vazios (mínimo e máximo), tratando como 0 se vazios
+            quantidadeMinima = textoQuantidadeMinima.isEmpty() ? 0 : Integer.parseInt(textoQuantidadeMinima);
+            quantidadeMaxima = textoQuantidadeMaxima.isEmpty() ? 0 : Integer.parseInt(textoQuantidadeMaxima);
+
+            // Converte a data, somente se o campo não estiver vazio
+            if (!textoValidade.isEmpty()) {
+                SimpleDateFormat formatadorData = new SimpleDateFormat("dd/MM/yyyy");
+                formatadorData.setLenient(false);
+                dataValidade = formatadorData.parse(textoValidade);
+                LocalDate dataValidadeProduto = dataValidade.toInstant()
+                                                .atZone(ZoneId.systemDefault())
+                                                .toLocalDate();
+                LocalDate hoje = LocalDate.now();
+
+                // Verifica se a data do produto é anterior à data de hoje
+                if (dataValidadeProduto.isBefore(hoje)) {
+                    JOptionPane.showMessageDialog(this,
+                            "Não é possível cadastrar um produto com data de validade vencida.",
+                            "Produto Vencido",
+                            JOptionPane.ERROR_MESSAGE);
+                    txtValidade.requestFocus(); // Devolve o foco ao campo de validade
+                    return; // Interrompe a execução, impedindo o salvamento
+                }
+            }
+        } catch (HeadlessException | NumberFormatException | ParseException e) {
+            JOptionPane.showMessageDialog(this, "Erro de formato em um dos campos numéricos ou de data.\nUse números para campos de quantidade e dd/mm/aaaa para data.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    }
-     if (categoriaDoProduto == null) {
-        JOptionPane.showMessageDialog(this, "Erro interno ao encontrar a categoria selecionada.", "Erro", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+        if (quantidadeMinima > 0 && quantidadeProduto < quantidadeMinima) { // Verifica se uma qtde. mínima foi definida
+            JOptionPane.showMessageDialog(this,
+                    "A Quantidade em estoque (" + quantidadeProduto + ") não pode ser menor que a Quantidade Mínima definida (" + quantidadeMinima + ").",
+                    "Erro de Validação de Estoque",
+                    JOptionPane.ERROR_MESSAGE);
+            txtQuantidade.requestFocus(); // Coloca o foco no campo de quantidade
+            return; // Impede o salvamento
+        }
 
-    // 6. Lógica para Salvar (novo) ou Atualizar (existente) - DELEGA AO CONTROLLER
-    Produto produtoParaOperacao = new Produto(idProduto, nomeProduto, descricaoProduto, quantidadeProduto, dataValidade, categoriaDoProduto, precoUnitario, quantidadeMinima, quantidadeMaxima);
+        // 5. Busca da Categoria selecionada
+        String nomeCategoriaSelecionada = (String) cbCategoria.getSelectedItem();
+        Categoria categoriaDoProduto = null;
+        for (Categoria cat : categoriaDAO.listarTodas()) {
+            if (cat.getNome().equals(nomeCategoriaSelecionada)) {
+                categoriaDoProduto = cat;
+                break;
+            }
+        }
+        if (categoriaDoProduto == null) {
+            JOptionPane.showMessageDialog(this, "Erro interno ao encontrar a categoria selecionada.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-    boolean foiSalvoComSucesso;
+        // 6. Lógica para Salvar (novo) ou Atualizar (existente) - DELEGA AO CONTROLLER
+        Produto produtoParaOperacao = new Produto(idProduto, nomeProduto, descricaoProduto, quantidadeProduto, dataValidade, categoriaDoProduto, precoUnitario, quantidadeMinima, quantidadeMaxima);
 
-    
-    if (produtoDAO.buscarPorId(idProduto) != null) { // Verifica se já existe pelo ID no banco
-        foiSalvoComSucesso = produtoController.atualizarProduto(produtoParaOperacao); // CHAMA O CONTROLLER
-    } else {
-        foiSalvoComSucesso = produtoController.cadastrarProduto(produtoParaOperacao); // CHAMA O CONTROLLER
-    }
+        boolean foiSalvoComSucesso;
 
-    // 7. Mensagem final para o usuário e atualização da tela
-    if (foiSalvoComSucesso) {
-        JOptionPane.showMessageDialog(this, "Produto salvo/atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-        acaoLimparCampos(); // Limpa os campos após a operação
-        listarProdutos(); // ATUALIZA A TABELA DE PRODUTOS
-    } else {
-        JOptionPane.showMessageDialog(this, "Ocorreu um erro ao salvar/atualizar o produto.", "Erro", JOptionPane.ERROR_MESSAGE);
-    }
-} // Fim do acaoSalvarProduto
+        if (produtoDAO.buscarPorId(idProduto) != null) { // Verifica se já existe pelo ID no banco
+            foiSalvoComSucesso = produtoController.atualizarProduto(produtoParaOperacao); // CHAMA O CONTROLLER
+        } else {
+            foiSalvoComSucesso = produtoController.cadastrarProduto(produtoParaOperacao); // CHAMA O CONTROLLER
+        }
 
-    @SuppressWarnings("unchecked")
+        // 7. Mensagem final para o usuário e atualização da tela
+        if (foiSalvoComSucesso) {
+            JOptionPane.showMessageDialog(this, "Produto salvo/atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            acaoLimparCampos(); // Limpa os campos após a operação
+            listarProdutos(); // ATUALIZA A TABELA DE PRODUTOS
+        } else {
+            JOptionPane.showMessageDialog(this, "Ocorreu um erro ao salvar/atualizar o produto.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    } // Fim do acaoSalvarProduto
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -478,6 +510,15 @@ LocalDate hoje = LocalDate.now();
     private void txtQuantidadeMaximaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtQuantidadeMaximaActionPerformed
         // A lógica de quantidade máxima agora é tratada em acaoSalvarProduto(). Este método pode ficar vazio.
     }//GEN-LAST:event_txtQuantidadeMaximaActionPerformed
+    /**
+     * Preenche os campos do formulário com os dados de um produto selecionado
+     * na tabela, preparando-o para edição.
+     * <p>
+     * O método primeiramente verifica se uma linha na tabela de produtos foi selecionada.
+     * Se sim, obtém o ID do produto da linha selecionada e busca o objeto
+     * Produto completo no banco de dados através do DAO. Por fim, popula
+     * cada campo de texto e o ComboBox da tela com os dados do produto recuperado.
+     */
     private void acaoEditarProduto() {
         int linhaSelecionada = tblProdutos.getSelectedRow();
         if (linhaSelecionada == -1) {
@@ -505,9 +546,9 @@ LocalDate hoje = LocalDate.now();
             txtQuantidadeMinima.setText(String.valueOf(produtoParaEditar.getQuantidadeMinima()));
             txtQuantidadeMaxima.setText(String.valueOf(produtoParaEditar.getQuantidadeMaxima()));
 
-           
+            
             if (produtoParaEditar.getCategoria() != null) {
-                cbCategoria.setSelectedItem(produtoParaEditar.getCategoria().getNome()); 
+                cbCategoria.setSelectedItem(produtoParaEditar.getCategoria().getNome());
             } else {
                 cbCategoria.setSelectedIndex(0); // Seleciona "Selecione uma Categoria"
             }
@@ -526,30 +567,39 @@ LocalDate hoje = LocalDate.now();
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
         acaoExcluirProduto();
 }//GEN-LAST:event_btnExcluirActionPerformed
-private void acaoExcluirProduto() {
-    int linhaSelecionada = tblProdutos.getSelectedRow();
-    if (linhaSelecionada == -1) {
-        JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para excluir.", "Nenhum Produto Selecionado", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+/**
+     * Executa a ação de excluir um produto selecionado na tabela.
+     * <p>
+     * O método primeiro verifica se um produto foi selecionado. Em caso afirmativo,
+     * exibe uma caixa de diálogo para confirmar a operação com o usuário.
+     * Se o usuário confirmar, a remoção é delegada ao ProdutoDAO. Por fim,
+     * uma mensagem de sucesso ou erro é exibida, e a tabela de produtos é
+     * atualizada.
+     */
+    private void acaoExcluirProduto() {
+        int linhaSelecionada = tblProdutos.getSelectedRow();
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um produto na tabela para excluir.", "Nenhum Produto Selecionado", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    int idProduto = (int) tblProdutos.getValueAt(linhaSelecionada, 0); 
+        int idProduto = (int) tblProdutos.getValueAt(linhaSelecionada, 0);
 
-    int confirmacao = JOptionPane.showConfirmDialog(this, 
-                                                    "Tem certeza que deseja excluir o produto ID: " + idProduto + "?", 
-                                                    "Confirmar Exclusão", 
-                                                    JOptionPane.YES_NO_OPTION);
+        int confirmacao = JOptionPane.showConfirmDialog(this,
+                                                      "Tem certeza que deseja excluir o produto ID: " + idProduto + "?",
+                                                      "Confirmar Exclusão",
+                                                      JOptionPane.YES_NO_OPTION);
 
-    if (confirmacao == JOptionPane.YES_OPTION) {
-        if (produtoDAO.remover(idProduto)) { // Delega a remoção ao ProdutoDAO
-            JOptionPane.showMessageDialog(this, "Produto excluído com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            listarProdutos(); // Atualiza a tabela
-            acaoLimparCampos(); // Limpa os campos da tela
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao excluir o produto. Verifique se existem movimentos de estoque associados a ele.", "Erro", JOptionPane.ERROR_MESSAGE);
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            if (produtoDAO.remover(idProduto)) { // Delega a remoção ao ProdutoDAO
+                JOptionPane.showMessageDialog(this, "Produto excluído com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                listarProdutos(); // Atualiza a tabela
+                acaoLimparCampos(); // Limpa os campos da tela
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao excluir o produto. Verifique se existem movimentos de estoque associados a ele.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
-}
     private void cbCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbCategoriaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbCategoriaActionPerformed
@@ -561,50 +611,21 @@ private void acaoExcluirProduto() {
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
-private void btnLimpar() {
-    txtCodigo.setText("");
-    txtNome.setText("");
-    txtDescrição.setText("");
-    txtPrecoUnitario.setText("");
-    txtQuantidade.setText("");
-    txtQuantidadeMinima.setText("");
-    txtQuantidadeMaxima.setText("");
-    txtValidade.setText("");
-    cbCategoria.setSelectedIndex(0);
-}
-
-private void acaoLimparCampos() {
-    btnLimpar();
-}
-
-   
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmCadastroProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        
-        //</editor-fold>
-
-        
-        java.awt.EventQueue.invokeLater(() -> {
-            new FrmCadastroProduto().setVisible(true);
-        });
+/**
+     * Limpa todos os campos de entrada do formulário, redefinindo-os para
+     * seus estados iniciais.
+     */
+    private void acaoLimparCampos() {
+        txtCodigo.setText("");
+        txtNome.setText("");
+        txtDescrição.setText("");
+        txtPrecoUnitario.setText("");
+        txtQuantidade.setText("");
+        txtQuantidadeMinima.setText("");
+        txtQuantidadeMaxima.setText("");
+        txtValidade.setText("");
+        cbCategoria.setSelectedIndex(0);
     }
-    
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEditar;
     private javax.swing.JButton btnExcluir;
@@ -632,26 +653,35 @@ private void acaoLimparCampos() {
     private javax.swing.JTextField txtValidade;
     // End of variables declaration//GEN-END:variables
 
-private void listarProdutos() {
-    DefaultTableModel modelo = (DefaultTableModel) tblProdutos.getModel();
-    modelo.setRowCount(0); // Limpa as linhas existentes na tabela
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+/**
+     * Busca todos os produtos do banco de dados e os exibe na tabela da interface gráfica.
+     * <p>
+     * O método primeiro limpa a tabela de quaisquer dados existentes para evitar
+     * duplicidade. Em seguida, ele solicita a lista completa de produtos ao
+     * {@link ProdutoController}, itera sobre essa lista e adiciona cada produto
+     * como uma nova linha na tabela, formatando os dados (como data e categoria)
+     * para uma exibição amigável.
+     */
+    private void listarProdutos() {
+        DefaultTableModel modelo = (DefaultTableModel) tblProdutos.getModel();
+        modelo.setRowCount(0); // Limpa as linhas existentes na tabela
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-    List<Produto> produtos = produtoController.listarProdutos(); // Chama o Controller para obter produtos do banco
+        List<Produto> produtos = produtoController.listarProdutos(); // Chama o Controller para obter produtos do banco
 
-    for (Produto p : produtos) {
-        String dataValidadeStr = (p.getValidade() != null) ? sdf.format(p.getValidade()) : "";
-        String nomeCategoria = (p.getCategoria() != null) ? p.getCategoria().getNome() : "";
+        for (Produto p : produtos) {
+            String dataValidadeStr = (p.getValidade() != null) ? sdf.format(p.getValidade()) : "";
+            String nomeCategoria = (p.getCategoria() != null) ? p.getCategoria().getNome() : "";
 
-        modelo.addRow(new Object[]{
-            p.getId(),
-            p.getNome(),
-            p.getPrecoUnitario(),
-            p.getQuantidade(),
-            dataValidadeStr,
-            nomeCategoria
-        });
+            modelo.addRow(new Object[]{
+                p.getId(),
+                p.getNome(),
+                p.getPrecoUnitario(),
+                p.getQuantidade(),
+                dataValidadeStr,
+                nomeCategoria
+            });
+        }
     }
-}
 
 }

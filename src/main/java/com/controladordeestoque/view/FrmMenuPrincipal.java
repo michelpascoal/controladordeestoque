@@ -1,18 +1,22 @@
 package com.controladordeestoque.view;
 
 /**
- *
- * @author juann
+ * Representa a tela do menu principal da aplicação.
+ * <p>
+ * Este frame serve como o ponto central de navegação, a partir do qual o
+ * usuário pode acessar as diferentes funcionalidades do sistema, como as telas
+ * de cadastro, consulta e movimentação de estoque.
  */
 public class FrmMenuPrincipal extends javax.swing.JFrame {
 
-   
+
+    /**
+     * Construtor da tela de menu principal.
+     * Inicia e configura todos os componentes visuais da tela.
+     */
     public FrmMenuPrincipal() {
         initComponents();
     }
-
-   
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -115,23 +119,36 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_itemMovimentacaoEstoqueActionPerformed
 
     private void itemSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemSairActionPerformed
-        int resposta = javax.swing.JOptionPane.showConfirmDialog(this,
+        /*
+ * Exibe uma caixa de diálogo para o usuário confirmar se deseja
+ * realmente sair da aplicação. Se a resposta for "Sim", o programa
+ * é encerrado.
+ */
+int resposta = javax.swing.JOptionPane.showConfirmDialog(this,
         "Deseja realmente sair do sistema?",
         "Confirmar Saída",
         javax.swing.JOptionPane.YES_NO_OPTION);
-        if (resposta == javax.swing.JOptionPane.YES_OPTION) {
+if (resposta == javax.swing.JOptionPane.YES_OPTION) {
     System.exit(0);
 }
     }//GEN-LAST:event_itemSairActionPerformed
 
-
- public static void main(String args[]) {
+ /**
+     * Método principal que serve como ponto de entrada para iniciar a aplicação.
+     * <p>
+     * Este método utiliza {@code java.awt.EventQueue.invokeLater} para garantir
+     * que a criação e exibição da interface gráfica (a tela FrmMenuPrincipal)
+     * ocorra na Event Dispatch Thread (EDT) do Swing. Esta é a prática
+     * recomendada para garantir a segurança de threads em aplicações Swing.
+     *
+     * @param args os argumentos de linha de comando (não utilizados).
+     */
+    public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(() -> {
             new FrmMenuPrincipal().setVisible(true);
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem itemCadastroProduto;
     private javax.swing.JMenuItem itemConsultaProduto;

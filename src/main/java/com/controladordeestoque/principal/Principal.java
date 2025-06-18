@@ -9,17 +9,30 @@ import javax.swing.SwingUtilities;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Classe principal que serve como ponto de entrada para a aplicação "Controlador de Estoque".
+ * Suas responsabilidades incluem:
+ * 1. Inicializar o banco de dados com dados de teste (se estiver vazio).
+ * 2. Listar os dados existentes no console para verificação.
+ * 3. Iniciar a interface gráfica do usuário (GUI).
+ */
 public class Principal {
 
+    /**
+     * O método principal que inicia a execução da aplicação.
+     *
+     * @param args Argumentos de linha de comando (não utilizados nesta aplicação).
+     */
     public static void main(String[] args) {
         CategoriaDAO categoriaDAO = new CategoriaDAO();
         ProdutoDAO produtoDAO = new ProdutoDAO();
 
-        
+        // Bloco para popular o banco de dados com dados iniciais se estiver vazio.
+        // Ideal para a primeira execução do sistema ou para fins de demonstração.
         try {
-            if (categoriaDAO.listarTodas().isEmpty()) { 
+            if (categoriaDAO.listarTodas().isEmpty()) {
                 System.out.println("Inserindo categorias iniciais...");
-                categoriaDAO.salvar(new Categoria(0, "Bebidas")); // 
+                categoriaDAO.salvar(new Categoria(0, "Bebidas"));
                 categoriaDAO.salvar(new Categoria(0, "Alimentos"));
                 categoriaDAO.salvar(new Categoria(0, "Limpeza"));
                 categoriaDAO.salvar(new Categoria(0, "Higiene Pessoal"));
@@ -36,9 +49,10 @@ public class Principal {
                     produtoDAO.salvar(new Produto(0, "Refrigerante", "Lata 350ml", 50, new Date(), categoriaBebidas, 4.50, 10, 200));
                 }
                 Categoria categoriaAlimentos = categoriaDAO.buscarPorNome("Alimentos");
-                 if (categoriaAlimentos != null) {
-                    produtoDAO.salvar(new Produto(0, "Arroz Tipo 1", "Pacote 5kg", 30, new Date(System.currentTimeMillis() + 86400000L * 365), categoriaAlimentos, 25.00, 5, 100)); // Validade 1 ano
-                 }
+                if (categoriaAlimentos != null) {
+                    // Validade de 1 ano a partir de hoje
+                    produtoDAO.salvar(new Produto(0, "Arroz Tipo 1", "Pacote 5kg", 30, new Date(System.currentTimeMillis() + 86400000L * 365), categoriaAlimentos, 25.00, 5, 100));
+                }
                 System.out.println("Produtos iniciais inseridos.");
             }
         } catch (Exception e) {
@@ -65,7 +79,7 @@ public class Principal {
             }
         }
 
-        // Inicia a interface gráfica
+        // Inicia a interface gráfica na Event Dispatch Thread (EDT) para garantir a segurança de threads do Swing.
         SwingUtilities.invokeLater(() -> {
             FrmMenuPrincipal telaPrincipal = new FrmMenuPrincipal();
             telaPrincipal.setVisible(true);

@@ -18,14 +18,28 @@ import java.time.temporal.ChronoUnit;
 import javax.swing.JTable;
 
 /**
- *
- * @author juann
+ * Representa a tela (JFrame) para consulta e visualização de produtos.
+ * <p>
+ * Esta interface permite aos usuários buscar, filtrar e visualizar a lista
+ * de produtos cadastrados com diferentes níveis de detalhe e aplicar
+* destaques visuais com base em regras de negócio (como estoque e validade).
  */
 public class FrmConsultaProduto extends javax.swing.JFrame {
+    /**
+     * Objeto de acesso a dados para realizar operações de busca de produtos.
+     */
     private ProdutoDAO produtoDAO;
+    /**
+     * Modelo da tabela usado para manipular os dados exibidos na JTable.
+     */
     private DefaultTableModel tableModel;
 
- 
+
+    /**
+     * Construtor da tela de consulta de produtos.
+     * Inicia os componentes visuais gerados pela IDE e chama a configuração
+     * da lógica customizada da tela.
+     */
     public FrmConsultaProduto() {
         initComponents();
         inicializarLogicaConsulta();
@@ -158,127 +172,143 @@ public class FrmConsultaProduto extends javax.swing.JFrame {
     private void btnAcimaMaximoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcimaMaximoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnAcimaMaximoActionPerformed
+    /**
+     * Configura a lógica inicial e os componentes customizados da tela de consulta.
+     * <p>
+     * Este método é responsável por:
+     * <ul>
+     * <li>Inicializar o DAO.</li>
+     * <li>Criar e configurar um {@link DefaultTableModel} customizado que não permite edição de células e define os tipos de dados das colunas para ordenação correta.</li>
+     * <li>Criar uma {@link JTable} customizada que sobrescreve o método de renderização para colorir as linhas de produtos com base na proximidade da data de validade.</li>
+     * <li>Aplicar um formatador de data para a coluna de validade.</li>
+     * <li>Carregar os dados iniciais na tabela.</li>
+     * <li>Configurar os listeners de eventos para os botões.</li>
+     * </ul>
+     */
     private void inicializarLogicaConsulta() {
-    System.out.println("FrmConsultaProduto: Iniciando inicializarLogicaConsulta()...");
-    produtoDAO = new ProdutoDAO();
+        System.out.println("FrmConsultaProduto: Iniciando inicializarLogicaConsulta()...");
+        produtoDAO = new ProdutoDAO();
 
-    String[] nomeColunas = {"Codigo", "Nome", "Descrição", "Quantidade", "Validade", "Categoria"};
-    this.tableModel = new DefaultTableModel(nomeColunas, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return switch (columnIndex) {
-                case 0 -> Integer.class;
-                case 3 -> Integer.class;
-                case 4 -> Date.class;
-                default -> String.class;
-            };
-        }
-    };
-
-    tblProdutos = new JTable() {
-        @Override
-        public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
-            Component component = super.prepareRenderer(renderer, row, column);
-
-            if (getModel().getRowCount() == 0) {
-                return component;
+        String[] nomeColunas = {"Codigo", "Nome", "Descrição", "Quantidade", "Validade", "Categoria"};
+        this.tableModel = new DefaultTableModel(nomeColunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
             }
 
-            int modelRow = convertRowIndexToModel(row);
-            Object value = getModel().getValueAt(modelRow, 4); 
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return switch (columnIndex) {
+                    case 0 -> Integer.class;
+                    case 3 -> Integer.class;
+                    case 4 -> Date.class;
+                    default -> String.class;
+                };
+            }
+        };
 
-            if (value instanceof Date validade) {
-                
-                // LINHA CORRIGIDA AQUI
-                LocalDate dataValidade = new java.sql.Date(validade.getTime()).toLocalDate();
-                
-                LocalDate hoje = LocalDate.now();
-                long diasParaVencer = ChronoUnit.DAYS.between(hoje, dataValidade);
+        tblProdutos = new JTable() {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component component = super.prepareRenderer(renderer, row, column);
 
-                if (!isRowSelected(row)) {
-                    if (diasParaVencer <= 2) {
-                        component.setBackground(new Color(255, 180, 180));
-                        component.setForeground(Color.BLACK);
-                    } else if (diasParaVencer <= 7) {
-                        component.setBackground(new Color(255, 220, 160));
-                        component.setForeground(Color.BLACK);
+                if (getModel().getRowCount() == 0) {
+                    return component;
+                }
+
+                int modelRow = convertRowIndexToModel(row);
+                Object value = getModel().getValueAt(modelRow, 4);
+
+                if (value instanceof Date validade) {
+                    
+                    LocalDate dataValidade = new java.sql.Date(validade.getTime()).toLocalDate();
+                    
+                    LocalDate hoje = LocalDate.now();
+                    long diasParaVencer = ChronoUnit.DAYS.between(hoje, dataValidade);
+
+                    if (!isRowSelected(row)) {
+                        if (diasParaVencer <= 2) {
+                            component.setBackground(new Color(255, 180, 180)); // Vermelho claro
+                            component.setForeground(Color.BLACK);
+                        } else if (diasParaVencer <= 7) {
+                            component.setBackground(new Color(255, 220, 160)); // Laranja claro
+                            component.setForeground(Color.BLACK);
+                        } else {
+                            component.setBackground(super.getBackground());
+                            component.setForeground(super.getForeground());
+                        }
                     } else {
+                        component.setBackground(super.getSelectionBackground());
+                        component.setForeground(super.getSelectionForeground());
+                    }
+                } else {
+                    if (!isRowSelected(row)) {
                         component.setBackground(super.getBackground());
                         component.setForeground(super.getForeground());
                     }
+                }
+                return component;
+            }
+        };
+
+        tblProdutos.setModel(this.tableModel);
+        tblProdutos.setAutoCreateRowSorter(true);
+
+        tblProdutos.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+            private final SimpleDateFormat formatador = new SimpleDateFormat("dd/MM/yyyy");
+
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof Date date) {
+                    setText(formatador.format(date));
                 } else {
-                    component.setBackground(super.getSelectionBackground());
-                    component.setForeground(super.getSelectionForeground());
-                }
-            } else {
-                if (!isRowSelected(row)) {
-                    component.setBackground(super.getBackground());
-                    component.setForeground(super.getForeground());
+                    setText("");
                 }
             }
-            return component;
-        }
-    };
+        });
 
-    tblProdutos.setModel(this.tableModel);
-    tblProdutos.setAutoCreateRowSorter(true);
+        jScrollPane1.setViewportView(tblProdutos);
 
-    tblProdutos.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
-        private final SimpleDateFormat formatador = new SimpleDateFormat("dd/MM/yyyy");
-
-        @Override
-        public void setValue(Object value) {
-            if (value instanceof Date date) {
-                setText(formatador.format(date));
-            } else {
-                setText("");
-            }
-        }
-    });
-
-    jScrollPane1.setViewportView(tblProdutos);
-
-    carregarTodosProdutosNaTabela();
-    configurarAcaoBotoesConsulta();
-    configurarAcoesRelatorios();
-    this.setTitle("Consulta de Produtos");
-    this.setLocationRelativeTo(null);
-}
-
-   
-    
-private void carregarTodosProdutosNaTabela() {
-    System.out.println("FrmConsultaProduto: Iniciando carregarTodosProdutosNaTabela()...");
-    tableModel.setRowCount(0); 
-
-    List<Produto> listaDeProdutos = produtoDAO.listarTodos();
-
-    if (listaDeProdutos != null) {
-        System.out.println("FrmConsultaProduto: Produtos encontrados no DAO: " + listaDeProdutos.size());
-        for (Produto p : listaDeProdutos) {
-            String nomeCategoria = (p.getCategoria() != null) ? p.getCategoria().getNome() : "";
-
-            Object[] dadosDaLinha = {
-                p.getId(),
-                p.getNome(),
-                p.getDescricao(),
-                p.getQuantidade(),
-                p.getValidade(), 
-                nomeCategoria
-            };
-            tableModel.addRow(dadosDaLinha);
-        }
-    } else {
-        System.out.println("FrmConsultaProduto: listaDeProdutos é null."); 
+        carregarTodosProdutosNaTabela();
+        configurarAcaoBotoesConsulta();
+        configurarAcoesRelatorios();
+        this.setTitle("Consulta de Produtos");
+        this.setLocationRelativeTo(null);
     }
-    System.out.println("FrmConsultaProduto: Finalizou carregarTodosProdutosNaTabela().");
-}
 
+    /**
+     * Busca todos os produtos do banco de dados e os carrega na tabela da interface.
+     */
+    private void carregarTodosProdutosNaTabela() {
+        System.out.println("FrmConsultaProduto: Iniciando carregarTodosProdutosNaTabela()...");
+        tableModel.setRowCount(0);
+
+        List<Produto> listaDeProdutos = produtoDAO.listarTodos();
+
+        if (listaDeProdutos != null) {
+            System.out.println("FrmConsultaProduto: Produtos encontrados no DAO: " + listaDeProdutos.size());
+            for (Produto p : listaDeProdutos) {
+                String nomeCategoria = (p.getCategoria() != null) ? p.getCategoria().getNome() : "";
+
+                Object[] dadosDaLinha = {
+                    p.getId(),
+                    p.getNome(),
+                    p.getDescricao(),
+                    p.getQuantidade(),
+                    p.getValidade(),
+                    nomeCategoria
+                };
+                tableModel.addRow(dadosDaLinha);
+            }
+        } else {
+            System.out.println("FrmConsultaProduto: listaDeProdutos é null.");
+        }
+        System.out.println("FrmConsultaProduto: Finalizou carregarTodosProdutosNaTabela().");
+    }
+
+    /**
+     * Configura o listener de evento para o botão de busca.
+     */
     private void configurarAcaoBotoesConsulta() {
         
         btnBuscarProduto.addActionListener((ActionEvent e) -> {
@@ -288,48 +318,54 @@ private void carregarTodosProdutosNaTabela() {
         
     }
 
-    
+    /**
+     * Contém a lógica para realizar a busca de um produto por ID.
+     * Se o campo de busca estiver vazio, recarrega todos os produtos. Se o termo
+     * de busca não for um número, exibe uma mensagem de aviso.
+     */
     private void executarBusca() {
-    String termoBusca = txtBuscaProduto.getText().trim();
+        String termoBusca = txtBuscaProduto.getText().trim();
 
-    if (termoBusca.isEmpty()) {
-        carregarTodosProdutosNaTabela();
-        return;
-    }
-
-    try {
-        int idParaBuscar = Integer.parseInt(termoBusca);
-        Produto produtoEncontrado = produtoDAO.buscarPorId(idParaBuscar);
-
-        tableModel.setRowCount(0); 
-
-        if (produtoEncontrado != null) {
-            String nomeCategoria = produtoEncontrado.getCategoria() != null ? produtoEncontrado.getCategoria().getNome() : "";
-
-            Object[] dadosDaLinha = {
-                produtoEncontrado.getId(),
-                produtoEncontrado.getNome(),
-                produtoEncontrado.getDescricao(),
-                produtoEncontrado.getQuantidade(),
-                produtoEncontrado.getValidade(), 
-                nomeCategoria
-            };
-            tableModel.addRow(dadosDaLinha);
-        } else {
-            JOptionPane.showMessageDialog(this, "Nenhum produto encontrado com o código: " + idParaBuscar, "Busca sem Resultados", JOptionPane.INFORMATION_MESSAGE);
+        if (termoBusca.isEmpty()) {
+            carregarTodosProdutosNaTabela();
+            return;
         }
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Para buscar por código, digite um número.", "Tipo de Busca", JOptionPane.WARNING_MESSAGE);
+
+        try {
+            int idParaBuscar = Integer.parseInt(termoBusca);
+            Produto produtoEncontrado = produtoDAO.buscarPorId(idParaBuscar);
+
+            tableModel.setRowCount(0);
+
+            if (produtoEncontrado != null) {
+                String nomeCategoria = produtoEncontrado.getCategoria() != null ? produtoEncontrado.getCategoria().getNome() : "";
+
+                Object[] dadosDaLinha = {
+                    produtoEncontrado.getId(),
+                    produtoEncontrado.getNome(),
+                    produtoEncontrado.getDescricao(),
+                    produtoEncontrado.getQuantidade(),
+                    produtoEncontrado.getValidade(),
+                    nomeCategoria
+                };
+                tableModel.addRow(dadosDaLinha);
+            } else {
+                JOptionPane.showMessageDialog(this, "Nenhum produto encontrado com o código: " + idParaBuscar, "Busca sem Resultados", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Para buscar por código, digite um número.", "Tipo de Busca", JOptionPane.WARNING_MESSAGE);
+        }
     }
-}
 
-
+    /**
+     * Configura os listeners de eventos para os botões de geração de relatório.
+     */
     private void configurarAcoesRelatorios() {
         btnListaPrecos.addActionListener((ActionEvent e) -> {
             gerarRelatorioListaPrecos();
         });
 
-      
+        
         btnAbaixoMinimo.addActionListener((ActionEvent e) -> {
             gerarRelatorioAbaixoMinimo();
         });
@@ -338,7 +374,9 @@ private void carregarTodosProdutosNaTabela() {
         });
     }
 
-   
+    /**
+     * Gera e exibe o relatório de lista de preços em uma caixa de diálogo.
+     */
     private void gerarRelatorioListaPrecos() {
         List<String> relatorio = produtoDAO.gerarRelatorioListaPrecos(); //
         if (relatorio.isEmpty()) {
@@ -346,13 +384,11 @@ private void carregarTodosProdutosNaTabela() {
             return;
         }
 
-     
         StringBuilder relatorioCompleto = new StringBuilder("=== LISTA DE PREÇOS ===\n\n");
         for (String linha : relatorio) {
             relatorioCompleto.append(linha).append("\n");
         }
 
-     
         javax.swing.JTextArea textArea = new javax.swing.JTextArea(relatorioCompleto.toString());
         javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
         textArea.setLineWrap(true);
@@ -362,9 +398,11 @@ private void carregarTodosProdutosNaTabela() {
         JOptionPane.showMessageDialog(this, scrollPane, "Relatório de Lista de Preços", JOptionPane.INFORMATION_MESSAGE);
     }
 
-   
+    /**
+     * Gera e exibe o relatório de produtos abaixo do estoque mínimo.
+     */
     private void gerarRelatorioAbaixoMinimo() {
-        List<String> relatorio = produtoDAO.gerarRelatorioAbaixoMinimo(); 
+        List<String> relatorio = produtoDAO.gerarRelatorioAbaixoMinimo();
         if (relatorio.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nenhum produto abaixo do estoque mínimo.", "Relatório", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -383,39 +421,46 @@ private void carregarTodosProdutosNaTabela() {
         scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
         JOptionPane.showMessageDialog(this, scrollPane, "Relatório de Estoque Mínimo", JOptionPane.WARNING_MESSAGE);
     }
-   
+    
+    /**
+     * Executa a ação de busca de produto. Serve como um invólucro para o método de busca.
+     */
     private void acaoBuscarProduto() {
          executarBusca();
 
-}
+    }
+    
+    /**
+     * Gera e exibe o relatório de produtos acima do estoque máximo.
+     */
     private void gerarRelatorioAcimaMaximo() {
-    List<String> relatorio = produtoDAO.gerarRelatorioAcimaMaximo();
-    if (relatorio.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Nenhum produto acima do estoque máximo.", "Relatório", JOptionPane.INFORMATION_MESSAGE);
-        return;
-    }
+        List<String> relatorio = produtoDAO.gerarRelatorioAcimaMaximo();
+        if (relatorio.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nenhum produto acima do estoque máximo.", "Relatório", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
-    StringBuilder relatorioCompleto = new StringBuilder("=== PRODUTOS ACIMA DO ESTOQUE MÁXIMO ===\n\n");
-    for (String linha : relatorio) {
-        relatorioCompleto.append(linha).append("\n");
-    }
+        StringBuilder relatorioCompleto = new StringBuilder("=== PRODUTOS ACIMA DO ESTOQUE MÁXIMO ===\n\n");
+        for (String linha : relatorio) {
+            relatorioCompleto.append(linha).append("\n");
+        }
 
-   
-    javax.swing.JTextArea textArea = new javax.swing.JTextArea(relatorioCompleto.toString());
-    javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
-    textArea.setLineWrap(true);
-    textArea.setWrapStyleWord(true);
-    textArea.setEditable(false);
-    scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
-    JOptionPane.showMessageDialog(this, scrollPane, "Relatório de Estoque Máximo", JOptionPane.WARNING_MESSAGE);
-}
-  
+        
+        javax.swing.JTextArea textArea = new javax.swing.JTextArea(relatorioCompleto.toString());
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setEditable(false);
+        scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+        JOptionPane.showMessageDialog(this, scrollPane, "Relatório de Estoque Máximo", JOptionPane.WARNING_MESSAGE);
+    }
+    
+    /**
+     * Método principal para executar esta tela (JFrame) de forma independente.
+     *
+     * @param args os argumentos de linha de comando (não utilizados).
+     */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -426,16 +471,11 @@ private void carregarTodosProdutosNaTabela() {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(FrmConsultaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        
-        //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new FrmConsultaProduto().setVisible(true);
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbaixoMinimo;
     private javax.swing.JButton btnAcimaMaximo;

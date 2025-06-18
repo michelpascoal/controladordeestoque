@@ -1,9 +1,10 @@
 package com.controladordeestoque.view;
+
 import com.controladordeestoque.controller.MovimentacaoEstoqueController;
 import com.controladordeestoque.dao.MovimentoEstoqueDAO;
-import com.controladordeestoque.dao.ProdutoDAO;         
-import com.controladordeestoque.model.MovimentoEstoque; 
-                                  import javax.swing.JOptionPane;                         
+import com.controladordeestoque.dao.ProdutoDAO;
+import com.controladordeestoque.model.MovimentoEstoque;
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -12,187 +13,201 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
-                   
 
 /**
- *
+ * Janela de interface gráfica para movimentação de estoque.
+ * Permite registrar entradas e saídas de produtos no estoque, além de gerar relatórios.
+ * Utiliza o padrão MVC, delegando a lógica de negócio ao Controller.
+ * 
  * @author juann
  */
 public class FrmMovimentacaoEstoque extends javax.swing.JFrame {
+
     private MovimentoEstoqueDAO movimentoEstoqueDAO;
     private ProdutoDAO produtoDAO;
     private MovimentacaoEstoqueController movimentacaoEstoqueController;
-    
+
+    /**
+     * Construtor da interface de movimentação de estoque.
+     * Inicializa os componentes e lógica associada.
+     */
     public FrmMovimentacaoEstoque() {
         initComponents();
         inicializarLogicaMovimentacao();
     }
-private void inicializarLogicaMovimentacao() {
-    movimentoEstoqueDAO = new MovimentoEstoqueDAO();
-    produtoDAO = new ProdutoDAO();
-    movimentacaoEstoqueController = new MovimentacaoEstoqueController();
-    
-    configurarAcoesBotoesMovimentacao();
-    
-    this.setTitle("Movimentação de Estoque");
-    this.setLocationRelativeTo(null);  
-}
 
-private void configurarAcoesBotoesMovimentacao() {
-    btnConfirmarMovimentacao.addActionListener((ActionEvent e) -> {
-        acaoConfirmarMovimentacao();
-    });
+    /**
+     * Inicializa os DAOs, o controller e as configurações iniciais da interface.
+     */
+    private void inicializarLogicaMovimentacao() {
+        movimentoEstoqueDAO = new MovimentoEstoqueDAO();
+        produtoDAO = new ProdutoDAO();
+        movimentacaoEstoqueController = new MovimentacaoEstoqueController();
 
-    btnVoltarMenu.addActionListener((ActionEvent e) -> {
-        acaoVoltarMenu();
-    });
-}
+        configurarAcoesBotoesMovimentacao();
 
-private void acaoVoltarMenu() {
-    this.dispose();  
-}
-
- 
-private void acaoGerarRelatorio() {
-    List<MovimentoEstoque> relatorio = movimentacaoEstoqueController.listarTodasMovimentacoes(); // Usa o controller
-    if (relatorio.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Nenhuma movimentação de estoque registrada para gerar o relatório.", "Relatório Vazio", JOptionPane.INFORMATION_MESSAGE);
-        return;
+        this.setTitle("Movimentação de Estoque");
+        this.setLocationRelativeTo(null);
     }
 
-    StringBuilder relatorioCompleto = new StringBuilder("=== RELATÓRIO DE MOVIMENTAÇÃO DE ESTOQUE ===\n\n");
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    /**
+     * Configura os listeners dos botões da interface gráfica.
+     */
+    private void configurarAcoesBotoesMovimentacao() {
+        btnConfirmarMovimentacao.addActionListener((ActionEvent e) -> {
+            acaoConfirmarMovimentacao();
+        });
 
-    for (MovimentoEstoque mov : relatorio) {
-        String linha = String.format("ID: %d | Produto: %s | Qtd: %d | Tipo: %s | Data: %s\n",
-                mov.getId(),
-                mov.getProduto().getNome(),
-                mov.getQuantidade(),
-                mov.getTipo(),
-                sdf.format(mov.getData()));
-        relatorioCompleto.append(linha);
+        btnVoltarMenu.addActionListener((ActionEvent e) -> {
+            acaoVoltarMenu();
+        });
     }
 
-    // Prepara a área de texto para ser exibida na janela
-    javax.swing.JTextArea textArea = new javax.swing.JTextArea(relatorioCompleto.toString());
-    javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
-    textArea.setLineWrap(true);
-    textArea.setWrapStyleWord(true);
-    textArea.setEditable(false);
-    scrollPane.setPreferredSize(new java.awt.Dimension(550, 350));
+    /**
+     * Fecha a janela atual e retorna ao menu principal.
+     */
+    private void acaoVoltarMenu() {
+        this.dispose();
+    }
 
-    // Define os botões customizados para a janela de diálogo
-    Object[] options = {"Salvar Relatório", "Fechar"};
+    /**
+     * Gera e exibe um relatório com todas as movimentações de estoque.
+     * Oferece opção de salvar o relatório como arquivo de texto.
+     */
+    private void acaoGerarRelatorio() {
+        List<MovimentoEstoque> relatorio = movimentacaoEstoqueController.listarTodasMovimentacoes();
+        if (relatorio.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nenhuma movimentação de estoque registrada para gerar o relatório.", "Relatório Vazio", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
-    int escolha = JOptionPane.showOptionDialog(
-        this,
-        scrollPane,
-        "Relatório de Movimentações",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.INFORMATION_MESSAGE,
-        null,
-        options,
-        options[1]
-    );
+        StringBuilder relatorioCompleto = new StringBuilder("=== RELATÓRIO DE MOVIMENTAÇÃO DE ESTOQUE ===\n\n");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-    
-    if (escolha == JOptionPane.YES_OPTION) { // YES_OPTION corresponde ao primeiro botão (índice 0)
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Salvar Relatório Como...");
-        fileChooser.setSelectedFile(new File("relatorio_movimentacao.txt")); // Sugestão de nome de arquivo
+        for (MovimentoEstoque mov : relatorio) {
+            String linha = String.format("ID: %d | Produto: %s | Qtd: %d | Tipo: %s | Data: %s\n",
+                    mov.getId(),
+                    mov.getProduto().getNome(),
+                    mov.getQuantidade(),
+                    mov.getTipo(),
+                    sdf.format(mov.getData()));
+            relatorioCompleto.append(linha);
+        }
 
-        int userSelection = fileChooser.showSaveDialog(this);
+        javax.swing.JTextArea textArea = new javax.swing.JTextArea(relatorioCompleto.toString());
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setEditable(false);
+        scrollPane.setPreferredSize(new java.awt.Dimension(550, 350));
 
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File arquivoParaSalvar = fileChooser.getSelectedFile();
-            try (FileWriter fw = new FileWriter(arquivoParaSalvar);
-                 BufferedWriter bw = new BufferedWriter(fw)) {
+        Object[] options = {"Salvar Relatório", "Fechar"};
 
-                bw.write(relatorioCompleto.toString());
+        int escolha = JOptionPane.showOptionDialog(
+                this,
+                scrollPane,
+                "Relatório de Movimentações",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[1]
+        );
 
-                JOptionPane.showMessageDialog(this, 
-                    "Relatório salvo com sucesso em:\n" + arquivoParaSalvar.getAbsolutePath(), 
-                    "Sucesso", 
-                    JOptionPane.INFORMATION_MESSAGE);
+        if (escolha == JOptionPane.YES_OPTION) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Salvar Relatório Como...");
+            fileChooser.setSelectedFile(new File("relatorio_movimentacao.txt"));
 
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, 
-                    "Ocorreu um erro ao salvar o arquivo:\n" + e.getMessage(), 
-                    "Erro de Gravação", 
-                    JOptionPane.ERROR_MESSAGE);
+            int userSelection = fileChooser.showSaveDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File arquivoParaSalvar = fileChooser.getSelectedFile();
+                try (FileWriter fw = new FileWriter(arquivoParaSalvar);
+                     BufferedWriter bw = new BufferedWriter(fw)) {
+
+                    bw.write(relatorioCompleto.toString());
+
+                    JOptionPane.showMessageDialog(this,
+                            "Relatório salvo com sucesso em:\n" + arquivoParaSalvar.getAbsolutePath(),
+                            "Sucesso",
+                            JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this,
+                            "Ocorreu um erro ao salvar o arquivo:\n" + e.getMessage(),
+                            "Erro de Gravação",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     }
-}
 
-private void acaoConfirmarMovimentacao() {
-    String textoCodigoProduto = txtCodigoMov.getText().trim();
-    String textoQuantidade = txtQuantidadeMov.getText().trim();
-    String tipoMovimento = (String) cmbTipoMovimento.getSelectedItem();
+    /**
+     * Realiza as validações e ações para registrar uma movimentação de entrada ou saída.
+     * Os dados são delegados ao Controller para tratamento da lógica.
+     */
+    private void acaoConfirmarMovimentacao() {
+        String textoCodigoProduto = txtCodigoMov.getText().trim();
+        String textoQuantidade = txtQuantidadeMov.getText().trim();
+        String tipoMovimento = (String) cmbTipoMovimento.getSelectedItem();
 
-    // Validações básicas de entrada (mantidas na View)
-    if (textoCodigoProduto.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "O Código do Produto é obrigatório.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
-        txtCodigoMov.requestFocus();
-        return;
-    }
-    if (textoQuantidade.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "A Quantidade é obrigatória.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
-        txtQuantidadeMov.requestFocus();
-        return;
-    }
-    if (tipoMovimento == null || tipoMovimento.isEmpty() || "Selecione o Tipo de Movimento".equals(tipoMovimento)) { // Adicionado verificação para item padrão
-        JOptionPane.showMessageDialog(this, "Selecione o Tipo de Movimento.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
-        cmbTipoMovimento.requestFocus();
-        return;
-    }
-
-    int idProduto;
-    try {
-        idProduto = Integer.parseInt(textoCodigoProduto);
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Código do Produto inválido. Deve ser um número.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
-        txtCodigoMov.requestFocus();
-        return;
-    }
-
-    int quantidadeMovimentada;
-    try {
-        quantidadeMovimentada = Integer.parseInt(textoQuantidade);
-        if (quantidadeMovimentada <= 0) {
-            JOptionPane.showMessageDialog(this, "Quantidade deve ser um número positivo.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+        if (textoCodigoProduto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "O Código do Produto é obrigatório.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+            txtCodigoMov.requestFocus();
+            return;
+        }
+        if (textoQuantidade.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "A Quantidade é obrigatória.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
             txtQuantidadeMov.requestFocus();
             return;
         }
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Quantidade inválida. Deve ser um número.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
-        txtQuantidadeMov.requestFocus();
-        return;
-    }
+        if (tipoMovimento == null || tipoMovimento.isEmpty() || "Selecione o Tipo de Movimento".equals(tipoMovimento)) {
+            JOptionPane.showMessageDialog(this, "Selecione o Tipo de Movimento.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+            cmbTipoMovimento.requestFocus();
+            return;
+        }
 
-    boolean sucesso = false;
-    if ("Entrada".equals(tipoMovimento)) {
-        sucesso = movimentacaoEstoqueController.registrarEntrada(idProduto, quantidadeMovimentada); // DELEGA AO CONTROLLER
-    } else if ("Saida".equals(tipoMovimento)) {
-        sucesso = movimentacaoEstoqueController.registrarSaida(idProduto, quantidadeMovimentada); // DELEGA AO CONTROLLER
-    }
+        int idProduto;
+        try {
+            idProduto = Integer.parseInt(textoCodigoProduto);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Código do Produto inválido. Deve ser um número.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            txtCodigoMov.requestFocus();
+            return;
+        }
 
-    if (sucesso) {
-        JOptionPane.showMessageDialog(this, "Movimentação de '" + tipoMovimento + "' registrada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-        txtCodigoMov.setText("");
-        txtQuantidadeMov.setText("");
-        cmbTipoMovimento.setSelectedIndex(0); // Reseta o ComboBox para o primeiro item
-        txtCodigoMov.requestFocus();
-    } else {
-        // As mensagens de erro específicas (produto não encontrado, estoque insuficiente, etc.)
-        // já são tratadas DENTRO do MovimentacaoEstoqueController.
-        // Aqui, apenas uma mensagem genérica de falha se o controller retornar false.
-        JOptionPane.showMessageDialog(this, "Falha ao registrar a movimentação.", "Erro na Operação", JOptionPane.ERROR_MESSAGE);
+        int quantidadeMovimentada;
+        try {
+            quantidadeMovimentada = Integer.parseInt(textoQuantidade);
+            if (quantidadeMovimentada <= 0) {
+                JOptionPane.showMessageDialog(this, "Quantidade deve ser um número positivo.", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
+                txtQuantidadeMov.requestFocus();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Quantidade inválida. Deve ser um número.", "Erro de Formato", JOptionPane.ERROR_MESSAGE);
+            txtQuantidadeMov.requestFocus();
+            return;
+        }
+
+        boolean sucesso = false;
+        if ("Entrada".equals(tipoMovimento)) {
+            sucesso = movimentacaoEstoqueController.registrarEntrada(idProduto, quantidadeMovimentada);
+        } else if ("Saida".equals(tipoMovimento)) {
+            sucesso = movimentacaoEstoqueController.registrarSaida(idProduto, quantidadeMovimentada);
+        }
+
+        if (sucesso) {
+            JOptionPane.showMessageDialog(this, "Movimentação de '" + tipoMovimento + "' registrada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            txtCodigoMov.setText("");
+            txtQuantidadeMov.setText("");
+            cmbTipoMovimento.setSelectedIndex(0);
+            txtCodigoMov.requestFocus();
+        } else {
+            JOptionPane.showMessageDialog(this, "Falha ao registrar a movimentação.", "Erro na Operação", JOptionPane.ERROR_MESSAGE);
+        }
     }
-    
-}
-   
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -278,29 +293,32 @@ private void acaoConfirmarMovimentacao() {
     private void btnGerarRelatorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGerarRelatorioActionPerformed
         acaoGerarRelatorio();
     }//GEN-LAST:event_btnGerarRelatorioActionPerformed
-    
+/**
+ * Método principal da aplicação.
+ * Define o tema visual (Look and Feel) como "Nimbus" se disponível,
+ * e inicializa a interface de movimentação de estoque na thread de eventos da AWT.
+ *
+ * @param args os argumentos da linha de comando (não utilizados)
+ */
+public static void main(String args[]) {
 
-    
-    public static void main(String args[]) {
-        
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+    try {
+        // Configura o Look and Feel "Nimbus" se estiver disponível no sistema
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
             }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmMovimentacaoEstoque.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-     
-
-        
-        java.awt.EventQueue.invokeLater(() -> {
-            new FrmMovimentacaoEstoque().setVisible(true);
-        });
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+        java.util.logging.Logger.getLogger(FrmMovimentacaoEstoque.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
 
+    // Inicializa a interface gráfica de forma assíncrona
+    java.awt.EventQueue.invokeLater(() -> {
+        new FrmMovimentacaoEstoque().setVisible(true);
+    });
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfirmarMovimentacao;
     private javax.swing.JButton btnGerarRelatorio;
