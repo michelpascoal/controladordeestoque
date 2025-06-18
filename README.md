@@ -4,6 +4,31 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ---
 
+## ✅ Requisitos Funcionais
+
+- RF01: O sistema deve permitir o cadastro de produtos com nome, descrição, categoria e quantidade mínima.
+- RF02: O sistema deve permitir a atualização e remoção de produtos cadastrados.
+- RF03: O sistema deve permitir o cadastro de categorias.
+- RF04: O sistema deve registrar movimentações de entrada e saída de produtos no estoque.
+- RF05: O sistema deve validar a disponibilidade de estoque antes de registrar uma saída.
+- RF06: O sistema deve emitir alertas de estoque baixo com base na quantidade mínima definida.
+- RF07: O sistema deve exibir relatórios simples com as movimentações realizadas.
+- RF08: O sistema deve permitir a consulta de produtos por código, nome ou categoria.
+
+---
+
+## ❎ Requisitos Não Funcionais
+
+- RNF01: O sistema deve ser desenvolvido em linguagem Java.
+- RNF02: A aplicação deve seguir o padrão de projeto MVC (Model-View-Controller).
+- RNF03: O sistema deve ser executado localmente com interface gráfica via NetBeans.
+- RNF04: O projeto deve ser versionado e hospedado no GitHub.
+- RNF05: O sistema deve utilizar um banco de dados relacional (MySQL ou SQLite).
+- RNF06: O código deve ser documentado seguindo padrão JavaDoc.
+- RNF07: O sistema deve ter boa usabilidade e ser intuitivo para o usuário final.
+
+---
+
 ## 🚀 Funcionalidades
 
 - ✅ Cadastrar produtos
@@ -36,7 +61,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 - Git + GitHub
 - draw.io (para diagramas UML)
 - Padrão de Projeto MVC
-- (Banco de dados a definir — ex: SQLite ou MySQL)
+- Banco de dados: MySQL ou SQLite (a definir)
 
 ---
 
@@ -63,7 +88,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 📌 Status do Projeto
 
-✅ *Em estágio final* — estrutura do projeto, modelagem, DAO, interface gráfica, controladores e banco de dados já implementados. Restando testes finais e documentação.
+✅ *Projeto concluído* — todas as etapas foram finalizadas: modelagem, DAO, interface gráfica, controladores, banco de dados, testes e documentação. O sistema está pronto e funcionando corretamente.
 
 ---
 
@@ -77,7 +102,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 - [x] Implementar camada `view` (GUI - Juan)
 - [x] Implementar controladores (Eduardo)
 - [x] Criar integração com banco de dados (Diego)
-- [ ] Realizar testes e documentação final (Caio)
+- [x] Realizar testes e documentação final (Caio)
 
 ---
 
