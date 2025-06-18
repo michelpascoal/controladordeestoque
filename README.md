@@ -106,6 +106,15 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ---
 
+## ⚙️ Configuração do Banco de Dados
+Para que a aplicação funcione corretamente, é necessário configurar o banco de dados MySQL em seu ambiente local. As credenciais utilizadas no código-fonte são:
+
+Nome da Base de Dados: control_estoque_db
+- Usuário: root
+- Senha: (vazio)
+
+---
+
 ## 🔁 Como clonar o projeto
 
 ```bash
