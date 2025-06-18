@@ -16,6 +16,18 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ---
 
+## 📐 Regras de Negócio
+
+- Um produto não pode ser cadastrado com nome ou código repetido.
+- A quantidade mínima de estoque é definida por produto.
+- Ao registrar uma **entrada**, a quantidade em estoque aumenta.
+- Ao registrar uma **saída**, o sistema verifica se há estoque suficiente.
+- O sistema emite alertas quando a quantidade de um produto atinge ou fica abaixo da quantidade mínima.
+- Produtos só podem ser excluídos se não houver movimentações registradas no histórico.
+- Toda movimentação (entrada ou saída) é registrada com data e hora.
+
+---
+
 ## 🛠️ Tecnologias Utilizadas
 
 - Java 17
@@ -51,7 +63,7 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 
 ## 📌 Status do Projeto
 
-🚧 *Em desenvolvimento* — estrutura do projeto e camada DAO finalizadas. Camada `view` já implementada. Aguardando integração com banco de dados e controladores.
+✅ *Em estágio final* — estrutura do projeto, modelagem, DAO, interface gráfica, controladores e banco de dados já implementados. Restando testes finais e documentação.
 
 ---
 
@@ -63,8 +75,8 @@ Sistema desenvolvido em Java para gerenciamento e controle de estoque de produto
 - [x] Implementar camada `DAO` com testes via `main()`
 - [x] Subir projeto para o GitHub com `.gitignore`
 - [x] Implementar camada `view` (GUI - Juan)
-- [ ] Implementar controladores (Eduardo)
-- [ ] Criar integração com banco de dados (Diego)
+- [x] Implementar controladores (Eduardo)
+- [x] Criar integração com banco de dados (Diego)
 - [ ] Realizar testes e documentação final (Caio)
 
 ---
